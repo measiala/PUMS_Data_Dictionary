@@ -1,31 +1,5 @@
-def is_record_header(p):
-    words = p.split()
-    if len(words) > 1:
-        if words[1][:6] == 'RECORD' and words[0] in ['HOUSING','PERSON']:
-            return True
-    return False
-    
-def is_var_name(p):
-    words = p.split()
-    if len(words) == 2:
-        if p[0].isalpha() and words[0].isalnum() and words[0].isupper() and words[1].isdigit():
-            return True
-    return False
-
-def is_var_desc(p,ptype):
-    words = p.split('.')
-    if ptype == 'Var Name':
-        return True
-    elif ptype == 'Var Desc' and len(words) == 1:
-        return True
-    return False
-
-def is_val_desc(p,ptype):
-    words = p.split('.')
-    if len(words) > 1:
-        if ptype in ['Var Name','Var Value']:
-            return True
-    return False
+from class_defs import *
+from classify_line import classify_line
 
 def add_var_name(p):
     words = p.split()
@@ -69,39 +43,26 @@ def add_val_desc(p,varname):
         for i in range(2, len(words1d)):
             var_val_desc = var_val_desc + '.' + words1d[i]
     dd.vars[dd.vardict[varname]].valdict = [ var_low, var_high, var_val_desc ]
-
-
-def classify_line(p,ptype):
-    words = p.split()
-
-    if not p:
-        return 'Blank'
-    elif is_record_header(p):
-        return 'Header'
-    elif is_var_name:
-        return 'Var Name'
-    elif is_var_desc(pltype):
-        return 'Var Desc'
-    elif is_val_desc(pltype):
-        return 'Var Value'
     
-def process_line(p,ltype):
+def process_line(p,ltype,varname='var'):
     words = p.split()
     
     if ltype == 'Blank':
         print("")
     elif ltype == 'Var Name':
-        add_var_name()
+        add_var_name(p)
     elif ltype == 'Var Desc':
-        add_var_desc()
+        add_var_desc(p,varname)
     elif ltype == 'Var Value':
-        add_var_value()
+        add_var_value(p,varname)
 
-def main():
-    dd = DataDict('PUMS 2017')
-
-    # read par
-    # p = par.text.strip()
-            
 if __name__ == '__main__':
-    main()
+    dd = DataDict('PUMS 2017')
+    plist = ['PWGTP 5','Person Weight','-9999..9999 .Integerized Person Weight']
+    pltype = 'Header'
+    pvar = ''
+    for p in plist:
+        ltype = classify_line(p,pltype)
+        process_line(p,ltype,varname=pvar)
+        pltype = ltype
+   
