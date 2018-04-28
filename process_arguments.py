@@ -54,10 +54,11 @@ def assign_outfiles(args,outdir):
         yr_rng = str(args.yyyy)
     else:
         yr_rng = str(args.yyyy - args.period + 1) + '-' + str(args.yyyy)
-        
-    outtxt = os.path.join(outdir,'PUMS_Data_Dictionary_',yr_rng,'.txt')
-    outdoc = os.path.join(outdir,'PUMS_Data_Dictionary_',yr_rng,'.docx')
-    outcsv = os.path.join(outdir,'PUMS_Data_Dictionary_',yr_rng,'.csv')
+
+    outtxt = os.path.join(outdir,'PUMS_Data_Dictionary_' + yr_rng + '.txt')
+    outdoc = os.path.join(outdir,'PUMS_Data_Dictionary_' + yr_rng + '.docx')
+    outcsv = os.path.join(outdir,'PUMS_Data_Dictionary_' + yr_rng + '.csv')
+
     if args.replace:
         return [ outdoc, outtxt, outcsv ]
     else:

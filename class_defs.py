@@ -1,13 +1,13 @@
 class VarInfo:
     
-    def __init__(self,name):
+    def __init__(self,name: str):
         self.name = name
         self.vartype = ''
-        self.varlen  = 0
+        self.varlen  = int
         self.vardesc = ''
         self.valdict = {}
 
-    def add_value(self,val_low,val_high,desc):
+    def add_value(self,val_low: str,val_high: str,desc):
         if val_low == val_high or (val_low and not val_high):
             val = val_low
         else:

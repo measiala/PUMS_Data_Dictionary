@@ -53,7 +53,8 @@ def output_var_desc( var_desc, ofile, doc, wrap_text = 'NO', indent = 'NO', tabi
     docx_out_var_desc( var_desc, doc )
     return;
 
-def output_var_val( rt, var_name, var_val, var_val_desc, var_len, ofile, doc, vfile, wrap_text = 'NO', tabindent = 'NO', tabsep = 'NO' ):
+def output_var_val( rt, var_name, var_val, var_val_desc, var_len, ofile, doc, vfile,
+                    wrap_text = 'NO', tabindent = 'NO', tabsep = 'NO' ):
     vwords = var_val.split('..')
     if len(vwords) == 1:
         var_low = var_val
@@ -73,3 +74,18 @@ def output_note( note, ofile, doc, wrap_text = 'NO', urls = 'YES'):
     print_note   ( note, ofile, wrap_text )
     docx_out_note( note, doc,   urls )
     return;
+
+def output_var_block(dd,varname,ofile,dfile,cfile):
+    for i in range(len(dd.vars)):
+        v = dd.vars[i]
+        varname = v.name
+        varlen = v.varlen
+        vardesc = v.vardesc
+        valdict = v.valdict
+
+        output_var_name(varname, varlen, ofile, dfile, cfile, tabsep = 'NO')
+        output_var_desc(vardesc, ofile, dfile, wrap_text='NO',indent='NO',tabindent='NO')
+        for varval in valdict.keys():
+            valdesc = valdict[varval]
+            output_var_val(varname, varval, valdesc, varlen, ofile, dfile, cfile,
+                           wrap_text='NO',tabindent='NO',tabsep='NO')

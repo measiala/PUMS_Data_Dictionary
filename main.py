@@ -6,8 +6,12 @@ import os
 from docx import Document
 from docx.shared import Inches, Pt
 
+from class_defs import *
 from process_arguments import *
 from classify_line import classify_line
+from process_line import process_line
+
+from docx_output import *
 
 INDIR = './input'
 OUTDIR = './output'
@@ -53,8 +57,10 @@ ddorig = Document(infile)
 origpars = ddorig.paragraphs
 
 """ Initialize lag variables """
+dd = DataDict('PUMS Data Dictionary')
 pltype = 'Blank'
 pvar = ''
+pval = ''
 
 """ Iterate over all paragraphs in document """
 for par in origpars:
@@ -63,12 +69,27 @@ for par in origpars:
     Next, we process the line once we know what type of data it is.
     Lastly we initialize the previous line type variable for the next pass.
     """
-
+    p = par.text.strip()
+    
     ltype = classify_line(p,pltype)
-    tmp = process_line(p,ltype,pvar)
+    tmp = process_line(p,dd,ltype,pvar,pval)
     if ltype == 'Var Name' and tmp != None:
         pvar = tmp
+    if ltype == 'Var Value' and tmp != None:
+        pval = tmp
     pltype = ltype
+
+for i in range(len(dd.vars)):
+    v = dd.vars[i]
+    varname = v.name
+    varlen = v.varlen
+    vardesc = v.vardesc
+    valdict = v.valdict
+
+    print("%-15s%3s" % (varname,str(varlen)))
+    print("    %s" % vardesc)
+    for key in valdict.keys():
+        print("    %18s .%-40s" % (key,valdict[key]))
 
 ddtext.close()
 ddcsv.close()

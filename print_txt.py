@@ -29,32 +29,35 @@ def print_line( line, ofile='print', platform='unix' ):
         # Otherwise default to UNIX ending of LF     
         else:
             ofile.write(line + '\n')
-    return;
+    return line
 
 def print_title( title, ofile='print' ):
     line = title
     print_line(line, ofile)
-    return;
+    return line
 
 def print_date( reldate, ofile='print' ):
     line = reldate + '\n'
     print_line(line, ofile)
-    return;
+    return line
 
 def print_record_type( rtype, ofile='print' ):
     line = '\n' + rtype
     print_line(line, ofile)
-    return;
+    return line
 
 def print_var_name( var_name, var_len, ofile='print', tabsep = 'NO' ):
-    if tabsep == 'YES':
-        line = '\n{0}\t{1}'.format(var_name, var_len)
-    else:
-        line = '\n{0:12}{1}'.format(var_name, var_len)
-    print_line(line, ofile)
-    return;
+    if len(var_name) < 12:
+        if tabsep == 'YES':
+            line = '\n{0}\t{1}'.format(var_name, var_len)
+        else:
+            line = '\n{0:12}{1}'.format(var_name, var_len)
+            print_line(line, ofile)
+        return line
+    return None
 
-def print_var_desc( var_desc, ofile='print', wrap_text = 'YES', indent = 'NO', tabindent = 'NO' ):
+def print_var_desc( var_desc, ofile='print', wrap_text = 'YES',
+                    indent = 'NO', tabindent = 'NO' ):
     if indent == 'NO':
         indtxt = ''
     elif tabindent == 'YES':
@@ -64,13 +67,17 @@ def print_var_desc( var_desc, ofile='print', wrap_text = 'YES', indent = 'NO', t
         
     if wrap_text == 'YES':
         lines = textwrap.wrap(textwrap.dedent(var_desc).strip(), width=72)
-        for i in range(0,len(lines)):
-            print_line( indtxt + lines[i], ofile )
+        for i in range(len(lines)):
+            lines[i] = indtxt + lines[i]
+            print_line( lines[i], ofile )
+        return lines
     else:
-        print_line( indtxt + var_desc, ofile)
-    return;
+        line = indtxt + var_desc
+        print_line(line, ofile)
+        return line
 
-def print_var_val( var_val, var_val_desc, var_len, ofile='print', wrap_text = 'NO', tabindent = 'NO', tabsep = 'NO' ):
+def print_var_val( var_val, var_val_desc, var_len, ofile='print',
+                   wrap_text = 'NO', tabindent = 'NO', tabsep = 'NO' ):
     if tabindent == 'YES':
         indtxt = '\t\t'
     else:
@@ -78,25 +85,29 @@ def print_var_val( var_val, var_val_desc, var_len, ofile='print', wrap_text = 'N
 
     def fmtval( varval, varlen, varvaldesc, tabsepflag = tabsep ):
         if tabsepflag == 'YES':
-            fmtline = '{0}\t.{1}'.format(valval, varvaldesc)
+            fmtline = '{0}\t.{1}'.format(varval, varvaldesc)
         else:
             fmtline = '{0:{1}}.{2}'.format(str(varval),str(2*int(varlen) + 3),varvaldesc)
         return fmtline;
 
     if wrap_text == 'YES':
         max_wd = 78 - 12 - 2*var_len - 2 - 1
-        lines = textwrap.wrap(textwrap.dedent(var_val_desc).strip(), width=max_wd)
-        fmtline = fmtval( var_val, var_len, lines[0], tabsep )
-        print_line( indtxt + fmtline, ofile )
+        rlines = textwrap.wrap(textwrap.dedent(var_val_desc).strip(), width=max_wd)
+        fmtline = fmtval( var_val, var_len, rlines[0], tabsep )
+        lines = [ indtxt + fmtline ]
+        print_line( lines[0], ofile )
         
-        if len(lines) > 1:
-            for i in range(1,len(lines)):
-                fmtline = fmtval( '', var_len, lines[i], tabsep )
-                print_line( indtxt + fmtline, ofile )
+        if len(rlines) > 1:
+            for i in range(1,len(rlines)):
+                fmtline = fmtval( '', var_len, rlines[i], tabsep )
+                lines.append(indtxt + fmtline)
+                print_line( lines[i], ofile )
+        return lines    
     else:
         fmtline = fmtval( var_val, var_len, var_val_desc, tabsep )
-        print_line( indtxt + fmtline, ofile)
-    return;
+        line = indtxt + fmtline
+        print_line( line, ofile)
+        return line
 
 def print_note( note, ofile='print', wrap_text = 'YES' ):
     if wrap_text == 'YES':
@@ -104,5 +115,5 @@ def print_note( note, ofile='print', wrap_text = 'YES' ):
     else:
         line = '\n' + note
     print_line(line, ofile)
-    return;
+    return line
 
