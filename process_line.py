@@ -38,7 +38,15 @@ def add_var_value(p,dd,varname):
     else:
         value_high = None
 
-    value_desc = words[1]
+    tmp = pparser.split(words[1])
+    if len(tmp) == 1:
+        value_desc = tmp
+    elif len(tmp) > 1:
+        value_desc = tmp[0]
+        for i in range(1,len(tmp)):
+            value_desc = value_desc + ' ' + tmp[i]
+    value_desc = value_desc[0]
+#    value_desc = words[1]
 
     """ FINISH """
     if varname in dd.vardict.keys():

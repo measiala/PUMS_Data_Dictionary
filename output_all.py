@@ -42,14 +42,14 @@ def output_record_type( rtype, ofile, doc):
 
 def output_var_name( rt, var_name, var_len, ofile, doc, vfile, tabsep = 'NO' ):
     if len(var_name) > 10:
-        print('ERROR: ' + var_name + ' has length ' + len(var_name))
-    vfile.write( 'N: ' + rt + ',' + var_name + ',' + var_len + '\n' )
+        print('ERROR: ' + var_name + ' has length ' + str(len(var_name)))
+    vfile.write( 'N: ' + rt + ',' + var_name + ',' + str(var_len) + '\n' )
     print_var_name   ( var_name, var_len, ofile, tabsep )
     docx_out_var_name( var_name, var_len, doc )
     return;
 
 def output_var_desc( var_desc, ofile, doc, wrap_text = 'NO', indent = 'NO', tabindent = 'NO' ):
-    print_var_desc   ( var_desc, ofile, wrap_text, indent, tabindent ) ###
+    print_var_desc   ( var_desc, ofile, wrap_text, indent, tabindent )
     docx_out_var_desc( var_desc, doc )
     return;
 
@@ -65,7 +65,7 @@ def output_var_val( rt, var_name, var_val, var_val_desc, var_len, ofile, doc, vf
     else:
         var_low = 'ERR'
         var_hi  = 'ERR'
-    vfile.write( 'V: ' + rt + ',' + var_name + ',' + var_len + ',' + var_low + ',' + var_hi + '\n') 
+    vfile.write( 'V: ' + rt + ',' + var_name + ',' + str(var_len) + ',' + var_low + ',' + var_hi + '\n') 
     print_var_val   ( var_val, var_val_desc, var_len, ofile, wrap_text, tabindent, tabsep )
     docx_out_var_val( var_val, var_val_desc, var_len, doc  , wrap_text = 'YES')
     return;

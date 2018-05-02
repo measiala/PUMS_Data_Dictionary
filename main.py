@@ -11,7 +11,8 @@ from process_arguments import *
 from classify_line import classify_line
 from process_line import process_line
 
-from docx_output import *
+from docx_output import initialize_doc
+from output_all import *
 
 INDIR = './input'
 OUTDIR = './output'
@@ -85,11 +86,13 @@ for i in range(len(dd.vars)):
     varlen = v.varlen
     vardesc = v.vardesc
     valdict = v.valdict
-
-    print("%-15s%3s" % (varname,str(varlen)))
-    print("    %s" % vardesc)
+    output_var_name('H', varname, varlen, ddtext, ddword, ddcsv)
+    output_var_desc(vardesc, ddtext, ddword)
+    #print("%-15s%3s" % (varname,str(varlen)))
+    #print("    %s" % vardesc)
     for key in valdict.keys():
-        print("    %18s .%-40s" % (key,valdict[key]))
+        output_var_val('H',varname,key,valdict[key],varlen,ddtext,ddword,ddcsv);
+        #print("    %18s .%-40s" % (key,valdict[key]))
 
 ddtext.close()
 ddcsv.close()
