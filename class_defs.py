@@ -1,5 +1,11 @@
+class HeaderInfo:
+    def __init__(self,name: str,level: int,htype: str,pos: int):
+        self.name = name
+        self.level = level
+        self.htype = htype
+        self.pos = pos
+
 class VarInfo:
-    
     def __init__(self,name: str):
         self.name = name
         self.vartype = ''
@@ -14,7 +20,6 @@ class VarInfo:
             val = val_low + '..' + val_high
         if val not in self.valdict.keys():
             self.valdict[val] = desc
-            #self.valdict[val] = [ val_low, val_high, desc ]
             return True
         else:
             return False
@@ -24,7 +29,14 @@ class DataDict:
         self.name = name
         self.vardict = {}
         self.vars = []
+        self.hdrdict = {}
+        self.headers = []
 
+    def add_header(self,header,level,htype,pos):
+        newheader = HeaderInfo(header,level,htype,pos)
+        self.headers.append(newheader)
+        self.hdrdict[header] = len(self.headers) -1
+        
     def add_var(self,var):
         newvar = VarInfo(var)
         self.vars.append(newvar)

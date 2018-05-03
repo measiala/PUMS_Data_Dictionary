@@ -41,8 +41,8 @@ def print_date( reldate, ofile='print' ):
     print_line(line, ofile)
     return line
 
-def print_record_type( rtype, ofile='print' ):
-    line = '\n' + rtype
+def print_header( header, ofile='print' ):
+    line = '\n' + header
     print_line(line, ofile)
     return line
 

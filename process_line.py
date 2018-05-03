@@ -1,16 +1,36 @@
 from class_defs import *
 from classify_line import classify_line
 
+def add_header(p,dd):
+    import re
+    pparser = re.compile(r"[\t -]+")
+    words = pparser.split(p)
+    header = words[0] + ' ' + words[1]
+    htype = words[0][0]
+    if htype in ['H','P']:
+        if len(words) == 2:
+            dd.add_header(header,1,htype,len(dd.vars))
+            return dd.headers[-1].pos
+        elif len(words) > 2:
+            header = header + '-' + words[2]
+            for word in words[3:]:
+                header = header + ' ' + word
+            dd.add_header(header,2,htype,len(dd.vars))
+            return dd.headers[-1].pos
+    return None
+    
 def add_var_name(p,dd):
     words = p.split(maxsplit=1)
     varname = words[0]
     varlen  = words[1]
+    vartype = dd.headers[-1].htype
     if varname in dd.vardict.keys():
         print("ERROR: Variable %s already defined." % varname)
         return None
     else:
         dd.add_var(varname)
         dd.vars[dd.vardict[varname]].varlen = int(varlen)
+        dd.vars[dd.vardict[varname]].vartype = vartype
         return varname
 
 def add_var_desc(p,dd,varname):
@@ -78,10 +98,10 @@ def add_val_desc(p,dd,varname,valname):
     return False
 
 def process_line(p,dd,ltype,varname,valname):
-    words = p.split()
-    
     if ltype == 'Blank':
         return True
+    elif ltype == 'Header':
+        return add_header(p,dd)
     elif ltype == 'Var Name':
         return add_var_name(p,dd)
     elif ltype == 'Var Desc':

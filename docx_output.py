@@ -85,13 +85,9 @@ def docx_out_date( reldate, doc ):
     doc.add_paragraph( reldate, style='Normal Center' )
     return;
 
-def docx_out_major_record_type( rtype, doc ):
-    doc.add_heading( rtype, level=1 )
+def docx_out_header(header, hlevel, doc):
+    doc.add_heading(header, hlevel)
     return;
-
-def docx_out_minor_record_type( rtype, doc ):
-    doc.add_heading( rtype, level=2 )
-    return
 
 def docx_out_var_name( var_name, var_len, doc ):
     doc.add_heading( var_name + '\t' + str(var_len), level=3 )
@@ -107,8 +103,6 @@ def docx_out_var_val(var_val, var_val_desc, var_len, doc, wrap_text = 'YES' ):
         tabloc = tabchar*6
         max_wd = 78 - tabchar - 2
         lines = textwrap.wrap(textwrap.dedent(var_val_desc).strip(), width=max_wd)
-        # if var_val == 'bbbbb':
-        #     print(tabchar, tabloc, max_wd, len(lines), len(lines[0]), var_val_desc )
         if len(lines) == 1:
             newp = doc.add_paragraph( var_val + '\t.' + lines[0], style='Var Value' )
             newp.paragraph_format.tab_stops.add_tab_stop( Pt(tabloc) )

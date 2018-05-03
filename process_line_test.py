@@ -5,6 +5,32 @@ from process_line import *
 
 dd = DataDict('PUMS 2017')
 
+def test_add_header():
+    assert add_header('HOUSING RECORD',dd) == 0
+    assert len(dd.headers) == 1
+    assert dd.headers[-1].name == 'HOUSING RECORD'
+    assert dd.headers[-1].level == 1
+    assert dd.headers[-1].htype == 'H'
+    assert dd.headers[-1].pos == 0
+    assert add_header('HOUSING RECORD - ALLOCATION',dd) == 0
+    assert len(dd.headers) == 2
+    assert dd.headers[-1].name == 'HOUSING RECORD-ALLOCATION'
+    assert dd.headers[-1].level == 2
+    assert dd.headers[-1].htype == 'H'
+    assert dd.headers[-1].pos == 0    
+    assert add_header('HOUSING RECORD  -- ALLOCATION',dd) == 0
+    assert len(dd.headers) == 3
+    assert dd.headers[-1].name == 'HOUSING RECORD-ALLOCATION'
+    assert dd.headers[-1].level == 2
+    assert dd.headers[-1].htype == 'H'
+    assert dd.headers[-1].pos == 0    
+    assert add_header('PERSON RECORD - ALLOCATION VARIABLES',dd) == 0
+    assert len(dd.headers) == 4
+    assert dd.headers[-1].name == 'PERSON RECORD-ALLOCATION VARIABLES'
+    assert dd.headers[-1].level == 2
+    assert dd.headers[-1].htype == 'P'
+    assert dd.headers[-1].pos == 0    
+    
 def test_add_var_name():
     assert add_var_name('PWGT 5',dd) == 'PWGT'
     assert dd.vardict['PWGT'] == 0
