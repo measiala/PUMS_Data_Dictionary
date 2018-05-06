@@ -3,80 +3,84 @@
 import py.test
 from process_line import *
 
-dd = DataDict('PUMS 2017')
+dd = DataDict('PUMS 2017 Dictionary')
+pl = PUMSDict('PUMS 2017 Layout')
 
 def test_add_header():
-    assert add_header('HOUSING RECORD',dd) == 0
-    assert len(dd.headers) == 1
-    assert dd.headers[-1].name == 'HOUSING RECORD'
-    assert dd.headers[-1].level == 1
-    assert dd.headers[-1].htype == 'H'
-    assert dd.headers[-1].pos == 0
-    assert add_header('HOUSING RECORD - ALLOCATION',dd) == 0
-    assert len(dd.headers) == 2
-    assert dd.headers[-1].name == 'HOUSING RECORD-ALLOCATION'
-    assert dd.headers[-1].level == 2
-    assert dd.headers[-1].htype == 'H'
-    assert dd.headers[-1].pos == 0    
-    assert add_header('HOUSING RECORD  -- ALLOCATION',dd) == 0
-    assert len(dd.headers) == 3
-    assert dd.headers[-1].name == 'HOUSING RECORD-ALLOCATION'
-    assert dd.headers[-1].level == 2
-    assert dd.headers[-1].htype == 'H'
-    assert dd.headers[-1].pos == 0    
-    assert add_header('PERSON RECORD - ALLOCATION VARIABLES',dd) == 0
-    assert len(dd.headers) == 4
-    assert dd.headers[-1].name == 'PERSON RECORD-ALLOCATION VARIABLES'
-    assert dd.headers[-1].level == 2
-    assert dd.headers[-1].htype == 'P'
-    assert dd.headers[-1].pos == 0    
+    assert add_header('HOUSING RECORD',pl) == 'H'
+    assert len(pl.rts) == 1
+    assert ('H' in pl.rtdict.keys()) == True
+
+    assert add_header('PERSON RECORD',pl) == 'P'
+    assert len(pl.rts) == 2
+    assert ('P' in pl.rtdict.keys()) == True
+
+    h = pl.rts[pl.rtdict['H']]
+    assert pl.rtdict['H'] == 0
+    assert h.name == 'H'
+    assert h.desc == 'HOUSING RECORD'
+    
+    assert pl.rtdict['P'] == 1
+  
+    assert add_header('HOUSING RECORD - BASIC VARIABLES',pl) == 'BV'
+    assert len(h.srts) == 1
+    assert ('BV' in h.srtdict.keys()) == True
+
+    haf = h.srts[h.srtdict['BV']]
+    assert haf.name == 'BV'
+    assert haf.desc == 'HOUSING RECORD-BASIC VARIABLES'
     
 def test_add_var_name():
-    assert add_var_name('PWGT 5',dd) == 'PWGT'
-    assert dd.vardict['PWGT'] == 0
-    assert dd.vars[0].name == 'PWGT'
-    assert dd.vars[0].varlen == 5
-    assert add_var_name('PWGT 5',dd) == None
+    assert add_var_name('WGT 5',dd,pl,'H','BV') == 'WGT'
+    assert ('WGT' in dd.vardict.keys()) == True
+    assert ('WGT' in pl.rts[pl.rtdict['H']].srts[pl.rts[pl.rtdict['H']].srtdict['BV']].vars) == True
 
-    assert add_var_name('PWGTP 5',dd) == 'PWGTP'
-    assert dd.vardict['PWGTP'] == 1
+    v = dd.vars[dd.vardict['WGT']]
+    assert v.name == 'WGT'
+    assert v.varlen == 5
+    assert v.vartype == 'C'  # This is hard coded at the moment
 
 def test_add_var_desc():
-    assert add_var_desc('Original ',dd,'PWGT') == True
-    assert dd.vars[0].vardesc == 'Original'
-    assert add_var_desc('Person Weight',dd,'PWGT') == True
-    assert dd.vars[0].vardesc == 'Original Person Weight'
+    v = dd.vars[dd.vardict['WGT']]
     
-    assert add_var_desc('PUMS Person Weight',dd,'PWGTP') == True
-    assert dd.vars[1].vardesc == 'PUMS Person Weight'
+    assert add_var_desc('Housing ',dd,'WGT') == 'WGT'
+    assert v.vardesc == 'Housing'
+    assert add_var_desc(' Unit Weight',dd,'WGT') == 'WGT'
+    assert v.vardesc == 'Housing Unit Weight'
 
-    assert add_var_desc('Bogus Person Weight',dd,'BPWGT') == False
-
+    assert add_var_desc('Person',dd,'PWGT') == None
+    
 def test_add_var_value():
-    assert add_var_value('0 .Vacant HU.',dd,'PWGT') == '0'
-    assert dd.vars[0].valdict['0'] == 'Vacant HU.'
+    v = dd.vars[dd.vardict['WGT']]
+    assert add_var_value('0 .Vacant HU.',dd,'WGT') == '0'
+    assert v.valdict['0'] == 'Vacant HU.'
 
-    assert add_var_value('-9999..09999 .Integerized',dd,'PWGTP') == '-9999..09999'
-    assert dd.vars[1].valdict['-9999..09999'] == 'Integerized'
+    assert add_var_value('-9999..09999 .Integerized  ',dd,'WGT') == '-9999..09999'
+    assert v.valdict['-9999..09999'] == 'Integerized'
+
+    assert add_var_value('0 .Vacant HU.',dd,'WGTP') == None
     
 def test_add_val_desc():
-    assert add_val_desc('.Weight',dd,'PWGT','314') == False
+    v = dd.vars[dd.vardict['WGT']]
+    assert add_val_desc('.Weight',dd,'WGT','314') == False
 
-    assert add_val_desc('.Weight',dd,'PWGTP','-9999..09999') == True
-    assert dd.vars[1].valdict['-9999..09999'] == 'Integerized Weight'
+    assert add_val_desc('.Weight',dd,'WGT','-9999..09999') == True
+    assert v.valdict['-9999..09999'] == 'Integerized Weight'
     
-    assert add_val_desc('.Weight',dd,'PWGTP','0') == False
+    assert add_val_desc('.Weight',dd,'WGTP','0') == False
 
 def test_process_line():
-    assert process_line('WGT 4',dd,'Var Name','','') == 'WGT'
-    assert process_line('Housing Unit Weight',dd,'Var Desc','WGT','') == True
-    assert process_line('1..9999 .Integerized',dd,'Var Value','WGT','') == '1..9999'
-    assert process_line('.Weight ',dd,'Val Desc','WGT','1..9999') == True
-    assert process_line('.Weight ',dd,'Val Desc','WGT','') == False
-    assert process_line('.Weight ',dd,'Val Desc','WGT','-100..-1') == False
-    assert process_line('0 .GQ Unit',dd,'Var Value','WGT','1..9999') == '0'
+    assert process_line('HOUSING RECORDS','Header',dd,pl,'','','','') == 'H'
+    assert process_line('HOUSING RECORDS-BASIC VARIABLES','Header',dd,pl,'H','','','') == 'BV'
+    assert process_line('WGTP 4','Var Name',dd,pl,'H','BV','','') == 'WGTP'
+    assert process_line('Housing Unit Weight','Var Desc',dd,pl,'H','BV','WGTP','') == 'WGTP'
+    assert process_line('1..9999 .Integerized','Var Value',dd,pl,'H','BV','WGTP','') == '1..9999'
+    assert process_line('.Weight ','Val Desc',dd,pl,'H','BV','WGTP','1..9999') == True
+    assert process_line('.Weight ','Val Desc',dd,pl,'H','BV','WGTP','') == False
+    assert process_line('.Weight ','Val Desc',dd,pl,'H','BV','WGTP','-100..-1') == False
+    assert process_line('0 .GQ Unit','Var Value',dd,pl,'H','BV','WGTP','1..9999') == '0'
     
-    assert dd.vars[dd.vardict['WGT']].name == 'WGT'
-    assert dd.vars[dd.vardict['WGT']].vardesc == 'Housing Unit Weight'
-    assert dd.vars[dd.vardict['WGT']].varlen  == 4
-    assert dd.vars[dd.vardict['WGT']].valdict == {'1..9999': 'Integerized Weight','0': 'GQ Unit'}
+    assert dd.vars[dd.vardict['WGTP']].name == 'WGTP'
+    assert dd.vars[dd.vardict['WGTP']].vardesc == 'Housing Unit Weight'
+    assert dd.vars[dd.vardict['WGTP']].varlen  == 4
+    assert dd.vars[dd.vardict['WGTP']].valdict == {'1..9999': 'Integerized Weight','0': 'GQ Unit'}

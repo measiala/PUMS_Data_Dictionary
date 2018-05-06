@@ -57,8 +57,13 @@ ddcsv = open(outcsv,'w')
 ddorig = Document(infile)
 origpars = ddorig.paragraphs
 
+""" Initialize Dictionary Storage """
+dd = DataDict('PUMS Variable Data Dictionary')
+pl = PUMSDict('PUMS Layouts by Record Type')
+
 """ Initialize lag variables """
-dd = DataDict('PUMS Data Dictionary')
+rt = ''
+srt = ''
 pltype = 'Blank'
 pvar = ''
 pval = ''
@@ -70,17 +75,30 @@ for par in origpars:
     Next, we process the line once we know what type of data it is.
     Lastly we initialize the previous line type variable for the next pass.
     """
-    p = par.text.strip()
+    p = par.text.replace(chr(160),' ').\
+        replace(chr(8212),'-').\
+        replace(chr(8220),'"').\
+        replace(chr(8221),'"').\
+        replace(chr(8216),"'").\
+        replace(chr(8217),"'").strip()
     
     ltype = classify_line(p,pltype)
-    tmp = process_line(p,dd,ltype,pvar,pval)
-    if ltype == 'Var Name' and tmp != None:
-        pvar = tmp
-    if ltype == 'Var Value' and tmp != None:
-        pval = tmp
+    tmp = process_line(p,ltype,dd,pl,rt,srt,pvar,pval)
+    if tmp != None:
+        if ltype == 'Header':
+            if len(tmp) == 1:
+                rt = tmp
+                srt = ''
+            elif len(tmp) > 1:
+                srt = tmp
+            print(len(tmp),rt,srt)
+        elif ltype == 'Var Name':
+            pvar = tmp
+        elif ltype == 'Var Value':
+            pval = tmp
     pltype = ltype
 
-output_var_block(dd,ddtext,ddword,ddcsv)
+output_var_block(pl,dd,ddtext,ddword,ddcsv,custom='YES')
 
 ddtext.close()
 ddcsv.close()

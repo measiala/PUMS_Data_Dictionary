@@ -169,6 +169,7 @@ def test_classify_line():
     assert classify_line("foo .bar","Var Desc") == 'Var Value'
     assert classify_line("foo .bar",'Var Value') == 'Var Value'
     assert classify_line("foo .bar",'Val Desc') == 'Var Value'
+    assert classify_line("  1 .2010 (1.0 * 1.1)",'Var Desc') == 'Var Value'
 
     assert classify_line(".bar",'Blank') == 'None'
     assert classify_line(".bar",'Header') == 'None'

@@ -97,9 +97,14 @@ def docx_out_var_desc( var_desc, doc ):
     doc.add_paragraph( var_desc, style='Var Desc' )
     return;
 
-def docx_out_var_val(var_val, var_val_desc, var_len, doc, wrap_text = 'YES' ):
+def docx_out_var_val(var_val, var_val_desc, var_len, doc, wrap_text = 'YES', custom_width = 'NO' ):
+    if custom_width == 'NO':
+        value_width = 2*int(var_len) + 3
+    else:
+        value_width = int(var_len) + 1
+
     if wrap_text == 'YES':
-        tabchar = 12 + 2*int(var_len) + 3
+        tabchar = 12 + value_width
         tabloc = tabchar*6
         max_wd = 78 - tabchar - 2
         lines = textwrap.wrap(textwrap.dedent(var_val_desc).strip(), width=max_wd)
@@ -115,8 +120,9 @@ def docx_out_var_val(var_val, var_val_desc, var_len, doc, wrap_text = 'YES' ):
             newp.paragraph_format.tab_stops.add_tab_stop( Pt(tabloc) )
     else:
         newp = doc.add_paragraph( var_val + '\t.' + var_val_desc, style='Var Value' )
+
     # Each char has length 6pt so below allows two values of var_len plus 1 inch plus the two dots
-    newp.paragraph_format.tab_stops.add_tab_stop( Pt(6*(2*int(var_len) + 3) + 72) )
+    newp.paragraph_format.tab_stops.add_tab_stop( Pt(6*value_width + 72))
     return;
 
 def docx_out_note( note, doc, urls = 'NO' ):

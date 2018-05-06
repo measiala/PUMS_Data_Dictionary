@@ -45,7 +45,7 @@ def output_var_desc( var_desc, ofile, doc, wrap_text = 'NO', indent = 'NO', tabi
     return;
 
 def output_var_val( var_name, var_type, var_len, var_val, var_val_desc, ofile, doc, vfile,
-                    wrap_text = 'NO', tabindent = 'NO', tabsep = 'NO' ):
+                    wrap_text = 'NO', tabindent = 'NO', tabsep = 'NO', cust_width = 'NO' ):
     vwords = var_val.split('..')
     if len(vwords) == 1:
         var_low = var_val
@@ -58,7 +58,7 @@ def output_var_val( var_name, var_type, var_len, var_val, var_val_desc, ofile, d
         var_hi  = 'ERR'
     vfile.write( 'V: ' + var_type + ',' + var_name + ',' + str(var_len) + ',' + var_low + ',' + var_hi + '\n') 
     print_var_val   ( var_val, var_val_desc, var_len, ofile, wrap_text, tabindent, tabsep )
-    docx_out_var_val( var_val, var_val_desc, var_len, doc  , wrap_text = 'YES')
+    docx_out_var_val( var_val, var_val_desc, var_len, doc, wrap_text='YES', custom_width=cust_width)
     return;
 
 def output_note( note, ofile, doc, wrap_text = 'NO', urls = 'YES'):
@@ -66,25 +66,43 @@ def output_note( note, ofile, doc, wrap_text = 'NO', urls = 'YES'):
     docx_out_note( note, doc,   urls )
     return;
 
-def output_var_block(dd,ofile,dfile,cfile):
-    for vi in range(len(dd.vars)):
-        for hi in range(len(dd.headers)):
-            if dd.headers[hi].pos == vi:
-                h = dd.headers[hi]
-                name = h.name
-                level = h.level
-                htype = h.htype
-                output_header(name, level, ofile, dfile)
-        v = dd.vars[vi]
-        varname = v.name
-        varlen = v.varlen
-        vartype = v.vartype
-        vardesc = v.vardesc
-        valdict = v.valdict
+def output_var_block(pl,dd,ofile,dfile,cfile,custom='DEFAULT'):
+    for nrt in range(len(pl.rts)):
+        rt = pl.rts[nrt]
+        desc = rt.desc
+        level = 1
+        output_header(desc, level, ofile, dfile)
+        
+        for nsrt in range(len(rt.srts)):
+            srt = rt.srts[nsrt]
+            desc = srt.desc
+            level = 2
 
-        output_var_name(varname, vartype, varlen, ofile, dfile, cfile, tabsep = 'NO')
-        output_var_desc(vardesc, ofile, dfile, wrap_text='NO',indent='NO',tabindent='NO')
-        for varval in valdict.keys():
-            valdesc = valdict[varval]
-            output_var_val(varname, vartype, varlen, varval, valdesc, ofile, dfile, cfile,
-                           wrap_text='NO',tabindent='NO',tabsep='NO')
+            if len(rt.srts) > 1:
+                output_header(desc, level, ofile, dfile)
+            
+            for varname in srt.vars:
+                v = dd.vars[dd.vardict[varname]]
+                varlen = v.varlen
+                vartype = v.vartype
+                vardesc = v.vardesc
+                valdict = v.valdict
+              
+                output_var_name(varname, vartype, varlen, ofile, dfile, cfile, tabsep = 'NO')
+                output_var_desc(vardesc, ofile, dfile, wrap_text='NO',indent='NO',tabindent='NO')
+
+                if custom != 'DEFAULT':
+                    maxlen = varlen
+                    for key in valdict.keys():
+                        if len(key) > maxlen:
+                            maxlen = len(key)
+                    if maxlen > varlen:
+                        custom_wid = 'NO'
+                    else:
+                        custom_wid = 'YES'
+                else:
+                    custom_wid = 'NO'
+                for varval in valdict.keys():
+                    valdesc = valdict[varval]
+                    output_var_val(varname, vartype, varlen, varval, valdesc, ofile, dfile, cfile,
+                                   wrap_text='NO',tabindent='NO',tabsep='NO',cust_width=custom_wid)

@@ -1,15 +1,8 @@
-class HeaderInfo:
-    def __init__(self,name: str,level: int,htype: str,pos: int):
-        self.name = name
-        self.level = level
-        self.htype = htype
-        self.pos = pos
-
 class VarInfo:
-    def __init__(self,name: str):
+    def __init__(self,name: str,varlen: int):
         self.name = name
         self.vartype = ''
-        self.varlen  = int
+        self.varlen  = varlen
         self.vardesc = ''
         self.valdict = {}
 
@@ -29,29 +22,46 @@ class DataDict:
         self.name = name
         self.vardict = {}
         self.vars = []
-        self.hdrdict = {}
-        self.headers = []
 
-    def add_header(self,header,level,htype,pos):
-        newheader = HeaderInfo(header,level,htype,pos)
-        self.headers.append(newheader)
-        self.hdrdict[header] = len(self.headers) -1
-        
+    def add_var(self,var,varlen):
+        if var not in self.vars:
+            newvar = VarInfo(var,varlen)
+            self.vars.append(newvar)
+            self.vardict[var] = len(self.vars) - 1
+        else:
+            print("Variable " + var + " already is in the data dictionary.")
+
+class MinorRecordType:
+    def __init__(self,name,desc):
+        self.name = name
+        self.desc = desc
+        self.vars = []
+
     def add_var(self,var):
-        newvar = VarInfo(var)
-        self.vars.append(newvar)
-        self.vardict[var] = len(self.vars) - 1
+        if var not in self.vars:
+            self.vars.append(var)
+        else:
+            print('Variable ' + var + ' already exists for this Minor Record Type.')
 
-if __name__ == "__main__":
-    dd = DataDict('Test')
+class MajorRecordType:
+    def __init__(self,name,desc):
+        self.name = name
+        self.desc = desc
+        self.srts = []
+        self.srtdict = {}
 
-    dd.add_var('PWGT')
-    v = dd.vars[dd.vardict['PWGT']]
-    print(v)
-    v.varlen = 5
-    v.vartype = 'N'
-    v.vardesc = 'Person Weight'
-    
-    v.add_value('-9999','9999','Integerized Person Weight')
+    def add_srt(self,srt,sdesc):
+        newsrt = MinorRecordType(srt,sdesc)
+        self.srts.append(newsrt)
+        self.srtdict[srt] = len(self.srts) - 1
 
-    print(v.name, v.vartype, v.varlen, v.vardesc, v.valdict['-9999..9999'])
+class PUMSDict:
+    def __init__(self,name):
+        self.name = name
+        self.rts = []
+        self.rtdict = {}
+
+    def add_rt(self,rt,desc):
+        newrt = MajorRecordType(rt,desc)
+        self.rts.append(newrt)
+        self.rtdict[rt] = len(self.rts) - 1

@@ -1,46 +1,76 @@
 from class_defs import *
 from classify_line import classify_line
 
-def add_header(p,dd):
+def add_header(p,pl):
     import re
     pparser = re.compile(r"[\t -]+")
     words = pparser.split(p)
     header = words[0] + ' ' + words[1]
-    htype = words[0][0]
-    if htype in ['H','P']:
+    rt = words[0][0]
+    if rt in ['H','P']:
         if len(words) == 2:
-            dd.add_header(header,1,htype,len(dd.vars))
-            return dd.headers[-1].pos
+            if rt not in pl.rtdict.keys():
+                pl.add_rt(rt,header)
+                return rt
+            else:
+                print("NOTE: Duplicate Major Record Type -- Ignoring.")
+                return rt
         elif len(words) > 2:
-            header = header + '-' + words[2]
-            for word in words[3:]:
-                header = header + ' ' + word
-            dd.add_header(header,2,htype,len(dd.vars))
-            return dd.headers[-1].pos
+            if rt in pl.rtdict.keys():
+                header = header + '-' + words[2]
+                srt = words[2][0]
+                for word in words[3:]:
+                    header = header + ' ' + word
+                    srt = srt + word[0]
+                if srt not in pl.rts[pl.rtdict[rt]].srtdict.keys():
+                    pl.rts[pl.rtdict[rt]].add_srt(srt,header)
+                    return srt
+                else:
+                    print("NOTE: Duplicate Minor Record Type -- Ignoring.")
+                    return srt
+            else:
+                print("ERROR: Record Minor Type with no Major Record Type defined.")
     return None
     
-def add_var_name(p,dd):
-    words = p.split(maxsplit=1)
-    varname = words[0]
-    varlen  = words[1]
-    vartype = dd.headers[-1].htype
-    if varname in dd.vardict.keys():
-        print("ERROR: Variable %s already defined." % varname)
-        return None
-    else:
-        dd.add_var(varname)
-        dd.vars[dd.vardict[varname]].varlen = int(varlen)
-        dd.vars[dd.vardict[varname]].vartype = vartype
+def add_var_name(p,dd,pl,lrt,lsrt):
+    if lrt in pl.rtdict.keys():
+        rt = pl.rts[pl.rtdict[lrt]]
+        if lsrt in rt.srtdict.keys():
+            srt = rt.srts[rt.srtdict[lsrt]]
+        else:
+            if rt.name not in rt.srtdict.keys():
+                rt.add_srt(rt.name,rt.desc)
+            srt = rt.srts[rt.srtdict[rt.name]]
+        words = p.split(maxsplit=1)
+        varname = words[0]
+        varlen  = int(words[1])
+        """
+        WARNING: THE VARIABLE TYPE NEEDS TO BE UPDATED ONCE LAYOUT IS FINALIZED
+        """
+        vartype = 'C'
+        if varname not in dd.vardict.keys():
+            dd.add_var(varname,varlen)
+            dd.vars[dd.vardict[varname]].vartype = vartype
+        else:
+            print("NOTE: Variable %s already defined in Data Dictionary." % varname)
+        if varname not in srt.vars:
+            srt.add_var(varname)
+        else:
+            print("ERROR: Variable %s already exists in Layout for %s." % (varname,srt.desc))
         return varname
+    return None
 
 def add_var_desc(p,dd,varname):
     if varname in dd.vardict.keys():
         v = dd.vars[dd.vardict[varname]]
-        v.vardesc = (v.vardesc + ' ' + p).strip()
-        return True
+        if p.strip() not in v.vardesc:
+            v.vardesc = (v.vardesc + ' ' + p.strip()).strip()
+            return varname
+        else:
+            print("ERROR: Possible duplication of variable description.")
     else:
-        print("ERROR: Issue with assigning variable description.")
-        return False
+        print("ERROR: Variable %s does not exist in the data dictionary." % varname)
+    return None
 
 def add_var_value(p,dd,varname):
     """ The parser creates a single split caused by required whitespace followed by a period """
@@ -48,7 +78,7 @@ def add_var_value(p,dd,varname):
     pparser = re.compile(r"[\t ]+\.")
     
     """ words will have [value range, value description] """
-    words = pparser.split(p,maxsplit=1)
+    words = pparser.split(p.rstrip(),maxsplit=1)
 
     """ Value range is either value_low..value_high or simply value_low """
     value_rng = words[0].split('..',maxsplit=1)
@@ -95,42 +125,19 @@ def add_val_desc(p,dd,varname,valname):
                 v.valdict[valname] = (v.valdict[valname] + ' ' + value_desc).strip()
             return True
     else:
-        print("ERROR: Issue with assigning variable description.")
+        print("ERROR: Issue with assigning value description.")
     return False
 
-def process_line(p,dd,ltype,varname,valname):
+def process_line(p,ltype,dd,pl,rt,srt,varname,valname):
     if ltype == 'Blank':
         return True
     elif ltype == 'Header':
-        return add_header(p,dd)
+        return add_header(p,pl)
     elif ltype == 'Var Name':
-        return add_var_name(p,dd)
+        return add_var_name(p,dd,pl,rt,srt)
     elif ltype == 'Var Desc':
         return add_var_desc(p,dd,varname)
     elif ltype == 'Var Value':
         return add_var_value(p,dd,varname)
     elif ltype == 'Val Desc':
         return add_val_desc(p,dd,varname,valname)
-
-if __name__ == '__main__':
-    dd = DataDict('PUMS 2017')
-    plist = ['PWGTP 5','Person Weight','-9999..9999 .Integerized Person Weight','.Vacant Unit']
-    pltype = 'Header'
-    pvar = ''
-    pval = ''
-    for p in plist:
-        ltype = classify_line(p,pltype)
-        tmp = process_line(p,dd,ltype,pvar,pval)
-        if ltype == 'Var Name' and tmp != None:
-            pvar = tmp
-        if ltype == 'Var Value' and tmp != None:
-            pval = tmp
-        print(ltype,tmp,pvar)
-        print("Name",dd.vars[-1].name)
-        print("Type",dd.vars[-1].vartype)
-        print("LEN",dd.vars[-1].varlen)
-        print("Desc",dd.vars[-1].vardesc)
-        print("Dict",dd.vars[-1].valdict)
-        print(pvar)
-        pltype = ltype
-   
