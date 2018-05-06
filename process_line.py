@@ -79,19 +79,20 @@ def add_var_value(p,dd,varname):
 def add_val_desc(p,dd,varname,valname):
     """ The parser causes a single split caused by optional white space followed by a period """
     import re
-    pparser = re.compile(r"[\t ]*\.")
+    tparser = re.compile(r"[\t ]*\.")
+    pparser = re.compile(r"[\t ]+\.")
     
     """ words will have [empty string, value description] """
-    words = pparser.split(p,maxsplit=1)
-    value_desc = words[1]
+    twords = tparser.split(p,maxsplit=1)
+    words = pparser.split(twords[1])
 
     """ FINISH """
     if varname in dd.vardict.keys():
         v = dd.vars[dd.vardict[varname]]
         if valname in v.valdict.keys():
-            #print(v,v.name,v.valdict[valname])
-            v.valdict[valname] = (v.valdict[valname] + ' ' + value_desc).strip()
-            #print(v,v.name,v.valdict[valname])
+            for i in range(len(words)):
+                value_desc = words[i].strip()
+                v.valdict[valname] = (v.valdict[valname] + ' ' + value_desc).strip()
             return True
     else:
         print("ERROR: Issue with assigning variable description.")

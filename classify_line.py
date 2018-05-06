@@ -56,7 +56,7 @@ def is_var_value(p,pltype):
     if pltype in ['Var Desc','Var Value','Val Desc']:
         pparser = re.compile(r"[\t ]+\.")
         words = pparser.split(p)
-        if len(words) > 1 and words[0]:
+        if len(words) > 1 and words[0] and words[0][0] != '.' :
             return True
     return False
 

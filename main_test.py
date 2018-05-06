@@ -2,7 +2,7 @@
 
 import pytest
 
-from main import *
+#from main import *
 
 class fakeparse:
     def __init__(self,yyyy,period):

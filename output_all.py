@@ -1,8 +1,3 @@
-#!/usr/bin/python3
-
-#import sys
-#sys.path.append( '.' )
-
 from print_txt import \
     print_title, \
     print_date, \

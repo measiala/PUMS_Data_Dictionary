@@ -22,8 +22,8 @@ def test_print_title():
 def test_print_date():
     assert print_date('abc 123',ofile='print') == 'abc 123\n'
 
-def test_print_record_type():
-    assert print_record_type('abc 123',ofile='print') == '\nabc 123'
+# def test_print_record_type():
+#     assert print_record_type('abc 123',ofile='print') == '\nabc 123'
 
 def test_print_var_name():
     assert print_var_name('PWGTP',    5,ofile='print',tabsep='NO') == '\nPWGTP       5'

@@ -88,7 +88,7 @@ def test_is_var_desc():
     assert is_var_desc(".bar",'Var Name') == False
     assert is_var_desc(" foo .bar",'Var Name') == False
     assert is_var_desc(" .bar",'Var Name') == False
-
+    
 def test_is_var_value():
     assert is_var_value("1 .XJ7","Var Desc") == True
     assert is_var_value("1..2 .XJ7","Var Desc") == True
@@ -117,6 +117,9 @@ def test_is_var_value():
     assert is_var_value("",'Val Desc') == False
     assert is_var_value("foo .bar","Var Desc") == True
 
+    assert is_var_value('.bar .bar','Var Value') == False
+    assert is_var_value(' .bar .bar','Var Value') == False
+
 def test_is_val_desc():
     assert is_val_desc("foo .bar","Var Desc") == False
     assert is_val_desc("foo .bar","Var Value") == False
@@ -127,7 +130,10 @@ def test_is_val_desc():
     assert is_val_desc(".bar","Var Desc") == False
     assert is_val_desc(".bar","Var Value") == True
     assert is_val_desc(".bar","Val Desc") == True
-    
+
+    assert is_val_desc('.bar .bar','Var Value') == True
+    assert is_val_desc(' .bar .bar','Var Value') == True
+
 def test_classify_line():
     assert classify_line("",'Blank') == 'Blank'
     assert classify_line("",'Header') == 'Blank'
