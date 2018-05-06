@@ -1,4 +1,4 @@
-# PUMS_Data_Dictionary_v2
+# PUMS_Data_Dictionary
 
 This is an update to the previous project PUMS_Data_Dictionary. It
 greatly improves both the object-oriented approach and couples it with
@@ -7,6 +7,8 @@ to hand off to others.
 
 To-Do List
 
-[ ] Complete the handling of record types and the machine readable file.
+[x] Complete the handling of record types and the machine readable file.
 
-[ ] Complete final write out of files including testing.
+[x] Complete final write out of files including testing.
+
+[ ] Obtain final layout of input file to include variable type
