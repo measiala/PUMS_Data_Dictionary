@@ -1,6 +1,6 @@
 from print_txt import \
     print_title, \
-    print_date, \
+    print_reldate, \
     print_header, \
     print_var_name, \
     print_var_desc, \
@@ -9,7 +9,7 @@ from print_txt import \
 from docx_output import \
     initialize_doc, \
     docx_out_title, \
-    docx_out_date, \
+    docx_out_reldate, \
     docx_out_header, \
     docx_out_var_name, \
     docx_out_var_desc, \
@@ -21,9 +21,9 @@ def output_title( title, ofile, doc ):
     docx_out_title( title, doc )
     return;
 
-def output_date( reldate, ofile, doc ):
-    print_date   ( reldate, ofile )
-    docx_out_date( reldate, doc )
+def output_reldate( reldate, ofile, doc ):
+    print_reldate   ( reldate, ofile )
+    docx_out_reldate( reldate, doc )
     return;
 
 def output_header(name,level,ofile,dfile):
@@ -33,10 +33,15 @@ def output_header(name,level,ofile,dfile):
 
 def output_var_name( var_name, var_type, var_len, ofile, doc, vfile, tabsep = 'NO' ):
     if len(var_name) > 10:
-        print('ERROR: ' + var_name + ' has length ' + str(len(var_name)))
+        print('WARNING: ' + var_name + ' has length ' + str(len(var_name)))
+        print('-------: A variable of length 12 will not have any whitespace separation.')
+    if var_type == 'C':
+        var_type_str = 'Character'
+    elif var_type == 'N':
+        var_type_str = 'Numeric'
     vfile.write( 'N: ' + var_type + ',' + var_name + ',' + str(var_len) + '\n' )
-    print_var_name   ( var_name, var_len, ofile, tabsep )
-    docx_out_var_name( var_name, var_len, doc )
+    print_var_name   ( var_name, var_type_str, var_len, ofile, tabsep )
+    docx_out_var_name( var_name, var_type_str, var_len, doc )
     return;
 
 def output_var_desc( var_desc, ofile, doc, wrap_text = 'NO', indent = 'NO', tabindent = 'NO' ):
@@ -67,6 +72,9 @@ def output_note( note, ofile, doc, wrap_text = 'NO', urls = 'YES'):
     return;
 
 def output_var_block(pl,dd,ofile,dfile,cfile,custom='DEFAULT'):
+    output_title(pl.title, ofile, dfile)
+    output_reldate(pl.reldate, ofile, dfile)
+
     for nrt in range(len(pl.rts)):
         rt = pl.rts[nrt]
         desc = rt.desc

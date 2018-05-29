@@ -36,7 +36,7 @@ def print_title( title, ofile='print' ):
     print_line(line, ofile)
     return line
 
-def print_date( reldate, ofile='print' ):
+def print_reldate( reldate, ofile='print' ):
     line = reldate + '\n'
     print_line(line, ofile)
     return line
@@ -46,12 +46,12 @@ def print_header( header, ofile='print' ):
     print_line(line, ofile)
     return line
 
-def print_var_name( var_name, var_len, ofile='print', tabsep = 'NO' ):
+def print_var_name( var_name, var_type, var_len, ofile='print', tabsep = 'NO' ):
     if len(var_name) < 12:
         if tabsep == 'YES':
-            line = '\n{0}\t{1}'.format(var_name, var_len)
+            line = '\n{0}\t{1}\t{2}'.format(var_name, var_type, var_len)
         else:
-            line = '\n{0:12}{1}'.format(var_name, var_len)
+            line = '\n{0:12}{1:12}{2}'.format(var_name, var_type, var_len)
             print_line(line, ofile)
         return line
     return None

@@ -19,26 +19,29 @@ def test_print_line():
 def test_print_title():
     assert print_title('abc 123',ofile='print') == 'abc 123'
 
-def test_print_date():
-    assert print_date('abc 123',ofile='print') == 'abc 123\n'
+def test_print_reldate():
+    assert print_reldate('abc 123',ofile='print') == 'abc 123\n'
 
 # def test_print_record_type():
 #     assert print_record_type('abc 123',ofile='print') == '\nabc 123'
 
 def test_print_var_name():
-    assert print_var_name('PWGTP',    5,ofile='print',tabsep='NO') == '\nPWGTP       5'
-    assert print_var_name('PWGTP80',  5,ofile='print',tabsep='NO') == '\nPWGTP80     5'
-    assert print_var_name('PWGTPWGTP',5,ofile='print',tabsep='NO') == '\nPWGTPWGTP   5'
-    assert print_var_name('PWGTPWGTP80',5,ofile='print',tabsep='NO') == '\nPWGTPWGTP80 5'
-    assert print_var_name('PWGTPWGTP801',5,ofile='print',tabsep='NO') == None
-    
-    assert print_var_name('PWGTP',5,ofile='print',tabsep='YES') == '\nPWGTP\t5'
-    assert print_var_name('PWGTP80',  5,ofile='print',tabsep='YES') == '\nPWGTP80\t5'
-    assert print_var_name('PWGTPWGTP',5,ofile='print',tabsep='YES') == '\nPWGTPWGTP\t5'
-    assert print_var_name('PWGTPWGTP80',5,ofile='print',tabsep='YES') == '\nPWGTPWGTP80\t5'
-    assert print_var_name('PWGTPWGTP801',5,ofile='print',tabsep='YES') == None
+    """ Check no-tab output """
+    assert print_var_name('PWGTP',      'N',5,ofile='print',tabsep='NO') == '\nPWGTP       N           5'
+    assert print_var_name('PWGTP80',    'N',5,ofile='print',tabsep='NO') == '\nPWGTP80     N           5'
+    assert print_var_name('PWGTPWGTP',  'N',5,ofile='print',tabsep='NO') == '\nPWGTPWGTP   N           5'
+    assert print_var_name('PWGTPWGTP80','N',5,ofile='print',tabsep='NO') == '\nPWGTPWGTP80 N           5'
+    assert print_var_name('PWGTPWGTP801','N',5,ofile='print',tabsep='NO') == None
 
-    assert print_var_name('PWGTP',    5) == '\nPWGTP       5'
+    """ Check tab output """
+    assert print_var_name('PWGTP','N',5,ofile='print',tabsep='YES') == '\nPWGTP\tN\t5'
+    assert print_var_name('PWGTP80','N',5,ofile='print',tabsep='YES') == '\nPWGTP80\tN\t5'
+    assert print_var_name('PWGTPWGTP','N',5,ofile='print',tabsep='YES') == '\nPWGTPWGTP\tN\t5'
+    assert print_var_name('PWGTPWGTP80','N',5,ofile='print',tabsep='YES') == '\nPWGTPWGTP80\tN\t5'
+    assert print_var_name('PWGTPWGTP801','N',5,ofile='print',tabsep='YES') == None
+
+    """ Check default is no tabs """
+    assert print_var_name('PWGTP','N',5) == '\nPWGTP       N           5'
 
 def test_print_var_desc():
     """ Verify indentation """

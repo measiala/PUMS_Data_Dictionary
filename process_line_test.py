@@ -6,6 +6,14 @@ from process_line import *
 dd = DataDict('PUMS 2017 Dictionary')
 pl = PUMSDict('PUMS 2017 Layout')
 
+def test_add_title():
+    assert add_title('2017 ACS PUMS Data Dictionary',pl) == '2017 ACS PUMS Data Dictionary'
+    assert pl.title == '2017 ACS PUMS Data Dictionary'
+
+def test_add_reldate():
+    assert add_reldate('OCtobER 18, 2018',pl) == 'October 18, 2018'
+    assert pl.reldate == 'October 18, 2018'
+
 def test_add_header():
     assert add_header('HOUSING RECORD',pl) == 'H'
     assert len(pl.rts) == 1
@@ -31,14 +39,23 @@ def test_add_header():
     assert haf.desc == 'HOUSING RECORD-BASIC VARIABLES'
     
 def test_add_var_name():
-    assert add_var_name('WGT 5',dd,pl,'H','BV') == 'WGT'
+    assert add_var_name('WGT Numeric 5',dd,pl,'H','BV') == 'WGT'
     assert ('WGT' in dd.vardict.keys()) == True
     assert ('WGT' in pl.rts[pl.rtdict['H']].srts[pl.rts[pl.rtdict['H']].srtdict['BV']].vars) == True
 
-    v = dd.vars[dd.vardict['WGT']]
-    assert v.name == 'WGT'
-    assert v.varlen == 5
-    assert v.vartype == 'C'  # This is hard coded at the moment
+    v1 = dd.vars[dd.vardict['WGT']]
+    assert v1.name == 'WGT'
+    assert v1.varlen == 5
+    assert v1.vartype == 'N'
+    
+    assert add_var_name('AGS Character 1',dd,pl,'H','BV') == 'AGS'
+    assert ('AGS' in dd.vardict.keys()) == True
+    assert ('AGS' in pl.rts[pl.rtdict['H']].srts[pl.rts[pl.rtdict['H']].srtdict['BV']].vars) == True
+
+    v2 = dd.vars[dd.vardict['AGS']]
+    assert v2.name == 'AGS'
+    assert v2.varlen == 1
+    assert v2.vartype == 'C'
 
 def test_add_var_desc():
     v = dd.vars[dd.vardict['WGT']]
@@ -48,18 +65,29 @@ def test_add_var_desc():
     assert add_var_desc(' Unit Weight',dd,'WGT') == 'WGT'
     assert v.vardesc == 'Housing Unit Weight'
 
+    assert add_var_desc('Housing Unit Weight',dd,'WGT') == False
+
     assert add_var_desc('Person',dd,'PWGT') == None
     
 def test_add_var_value():
-    v = dd.vars[dd.vardict['WGT']]
+    v1 = dd.vars[dd.vardict['WGT']]
     assert add_var_value('0 .Vacant HU.',dd,'WGT') == '0'
-    assert v.valdict['0'] == 'Vacant HU.'
+    assert v1.valdict['0'] == 'Vacant HU.'
 
     assert add_var_value('-9999..09999 .Integerized  ',dd,'WGT') == '-9999..09999'
-    assert v.valdict['-9999..09999'] == 'Integerized'
+    assert v1.valdict['-9999..09999'] == 'Integerized'
 
-    assert add_var_value('0 .Vacant HU.',dd,'WGTP') == None
+    assert add_var_value('00324 .Hello .Goodbye',dd,'WGT') == '00324'
+    assert v1.valdict['00324'] == 'Hello Goodbye'
     
+    assert add_var_value('0 .Vacant HU.',dd,'WGTP') == None
+
+    v2 = dd.vars[dd.vardict['AGS']]
+    assert add_var_value('B .N/A',dd,'AGS') == 'B'
+    assert ('b' in v2.valdict.keys()) == True
+    assert ('B' in v2.valdict.keys()) == False
+    assert v2.valdict['b'] == 'N/A'
+
 def test_add_val_desc():
     v = dd.vars[dd.vardict['WGT']]
     assert add_val_desc('.Weight',dd,'WGT','314') == False
@@ -72,7 +100,7 @@ def test_add_val_desc():
 def test_process_line():
     assert process_line('HOUSING RECORDS','Header',dd,pl,'','','','') == 'H'
     assert process_line('HOUSING RECORDS-BASIC VARIABLES','Header',dd,pl,'H','','','') == 'BV'
-    assert process_line('WGTP 4','Var Name',dd,pl,'H','BV','','') == 'WGTP'
+    assert process_line('WGTP Numeric 4','Var Name',dd,pl,'H','BV','','') == 'WGTP'
     assert process_line('Housing Unit Weight','Var Desc',dd,pl,'H','BV','WGTP','') == 'WGTP'
     assert process_line('1..9999 .Integerized','Var Value',dd,pl,'H','BV','WGTP','') == '1..9999'
     assert process_line('.Weight ','Val Desc',dd,pl,'H','BV','WGTP','1..9999') == True
@@ -83,4 +111,5 @@ def test_process_line():
     assert dd.vars[dd.vardict['WGTP']].name == 'WGTP'
     assert dd.vars[dd.vardict['WGTP']].vardesc == 'Housing Unit Weight'
     assert dd.vars[dd.vardict['WGTP']].varlen  == 4
+    assert dd.vars[dd.vardict['WGTP']].vartype == 'N'
     assert dd.vars[dd.vardict['WGTP']].valdict == {'1..9999': 'Integerized Weight','0': 'GQ Unit'}

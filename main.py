@@ -43,6 +43,14 @@ if infile == None:
 if outdoc == None:
     exit(2)
 
+print("-----")
+print("Reading DOCX from: %s" % infile)
+print("-----")
+print("Writing DOCX to: %s" % outdoc)
+print("Writing TXT to: %s" % outtxt)
+print("Writing CSV to: %s" % outcsv)
+print("-----")
+
 """ Setup base output Word document """
 ddword = Document(basefile)
 initialize_doc(ddword)
@@ -75,29 +83,43 @@ for par in origpars:
     Next, we process the line once we know what type of data it is.
     Lastly we initialize the previous line type variable for the next pass.
     """
+    import re
+    lfparser = re.compile(r"[\t ]*\n[\t .]*")
+    
     p = par.text.replace(chr(160),' ').\
         replace(chr(8212),'-').\
         replace(chr(8220),'"').\
         replace(chr(8221),'"').\
         replace(chr(8216),"'").\
         replace(chr(8217),"'").strip()
-    
-    ltype = classify_line(p,pltype)
-    tmp = process_line(p,ltype,dd,pl,rt,srt,pvar,pval)
-    if tmp != None:
-        if ltype == 'Header':
-            if len(tmp) == 1:
-                rt = tmp
-                srt = ''
-            elif len(tmp) > 1:
-                srt = tmp
-            print(len(tmp),rt,srt)
-        elif ltype == 'Var Name':
-            pvar = tmp
-        elif ltype == 'Var Value':
-            pval = tmp
-    pltype = ltype
 
+    p = ' '.join(lfparser.split(p))
+
+    ltype = classify_line(p,pltype)
+    if ltype != None:
+        tmp = process_line(p,ltype,dd,pl,rt,srt,pvar,pval)
+        if tmp != None:
+            if ltype == 'Header':
+                if len(tmp) == 1:
+                    rt = tmp
+                    srt = ''
+                elif len(tmp) > 1:
+                    srt = tmp
+                #print(len(tmp),rt,srt)
+            elif ltype == 'Var Name':
+                pvar = tmp
+            elif ltype == 'Var Value':
+                pval = tmp
+            pltype = ltype
+        else:
+            print("ERROR: Unable to process line '%s'. Please fix." % p)
+            print("-----: Last variable was %s." % pvar)
+            exit(2)
+    else:
+        print("ERROR: Line '%s' is not resolvable. Please fix." % p)
+        print("-----: Last variable was %s." % pvar)
+        exit(2)
+        
 output_var_block(pl,dd,ddtext,ddword,ddcsv,custom='YES')
 
 ddtext.close()

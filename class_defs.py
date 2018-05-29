@@ -1,7 +1,8 @@
 class VarInfo:
-    def __init__(self,name: str,varlen: int):
+    """ When initializing a variable, the name , type, and length is required """
+    def __init__(self,name: str,vartype: str,varlen: int):
         self.name = name
-        self.vartype = ''
+        self.vartype = vartype
         self.varlen  = varlen
         self.vardesc = ''
         self.valdict = {}
@@ -23,9 +24,9 @@ class DataDict:
         self.vardict = {}
         self.vars = []
 
-    def add_var(self,var,varlen):
+    def add_var(self,var,vartype,varlen):
         if var not in self.vars:
-            newvar = VarInfo(var,varlen)
+            newvar = VarInfo(var,vartype,varlen)
             self.vars.append(newvar)
             self.vardict[var] = len(self.vars) - 1
         else:
@@ -58,6 +59,8 @@ class MajorRecordType:
 class PUMSDict:
     def __init__(self,name):
         self.name = name
+        self.title = ''
+        self.reldate = ''
         self.rts = []
         self.rtdict = {}
 

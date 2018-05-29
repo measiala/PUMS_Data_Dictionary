@@ -66,6 +66,7 @@ def initialize_doc( doc ):
     # Heading 3 Style for Variable header
     style_props( head3, 3, 'LEFT', 0, 12, 0, True, '5B9BC5' )
     head3.paragraph_format.tab_stops.add_tab_stop(Inches(1.0))
+    head3.paragraph_format.tab_stops.add_tab_stop(Inches(2.0))
 
     # Variable Description Style
     style_props( vardes, 4, 'LEFT', 36, 0, 0, False )
@@ -81,7 +82,7 @@ def docx_out_title( title, doc ):
     doc.add_heading( title, level=1 )
     return;
 
-def docx_out_date( reldate, doc ):
+def docx_out_reldate( reldate, doc ):
     doc.add_paragraph( reldate, style='Normal Center' )
     return;
 
@@ -89,8 +90,8 @@ def docx_out_header(header, hlevel, doc):
     doc.add_heading(header, hlevel)
     return;
 
-def docx_out_var_name( var_name, var_len, doc ):
-    doc.add_heading( var_name + '\t' + str(var_len), level=3 )
+def docx_out_var_name( var_name, var_type, var_len, doc ):
+    doc.add_heading( var_name + '\t' + var_type + '\t' + str(var_len), level=3 )
     return;
 
 def docx_out_var_desc( var_desc, doc ):
@@ -109,17 +110,17 @@ def docx_out_var_val(var_val, var_val_desc, var_len, doc, wrap_text = 'YES', cus
         max_wd = 78 - tabchar - 2
         lines = textwrap.wrap(textwrap.dedent(var_val_desc).strip(), width=max_wd)
         if len(lines) == 1:
-            newp = doc.add_paragraph( var_val + '\t.' + lines[0], style='Var Value' )
+            newp = doc.add_paragraph( var_val + '\t.' + lines[0].strip(), style='Var Value' )
             newp.paragraph_format.tab_stops.add_tab_stop( Pt(tabloc) )
         elif len(lines) > 1:
-            oline = var_val + '\t.' + lines[0] + '\n'
+            oline = var_val + '\t.' + lines[0].strip() + '\n'
             for i in range(1,len(lines)-1):
-                oline = oline + '\t.' + lines[i] + '\n'
-            oline = oline + '\t.' + lines[-1]
+                oline = oline + '\t.' + lines[i].strip() + '\n'
+            oline = oline + '\t.' + lines[-1].strip()
             newp = doc.add_paragraph( oline, style = 'Var Value' )
             newp.paragraph_format.tab_stops.add_tab_stop( Pt(tabloc) )
     else:
-        newp = doc.add_paragraph( var_val + '\t.' + var_val_desc, style='Var Value' )
+        newp = doc.add_paragraph( var_val + '\t.' + var_val_desc.strip(), style='Var Value' )
 
     # Each char has length 6pt so below allows two values of var_len plus 1 inch plus the two dots
     newp.paragraph_format.tab_stops.add_tab_stop( Pt(6*value_width + 72))

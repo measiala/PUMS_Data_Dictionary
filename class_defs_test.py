@@ -71,11 +71,11 @@ def test_DataDict():
     assert len(dd.vars) == 0
 
     """ Test add variable """
-    dd.add_var('ST',2)
+    dd.add_var('ST','C',2)
     assert len(dd.vars) == 1
     assert ('ST' in dd.vardict.keys()) == True
 
-    dd.add_var('PUMA',5)
+    dd.add_var('PUMA','C',5)
     assert len(dd.vars) == 2
     assert ('PUMA' in dd.vardict.keys()) == True
 
@@ -88,11 +88,11 @@ def test_DataDict():
     assert v1.name == 'ST'
     assert v2.name == 'PUMA'
 
+    assert v1.vartype == 'C'
+    assert v2.vartype == 'C'
+    
     assert v1.varlen == 2
     assert v2.varlen == 5
-
-    assert len(v1.vartype) == 0
-    assert len(v2.vartype) == 0
 
     assert len(v1.vardesc) == 0
     assert len(v2.vardesc) == 0
@@ -100,10 +100,8 @@ def test_DataDict():
 def test_VarInfo():
     st = dd.vars[dd.vardict['ST']]
 
-    st.vartype = 'C'
     st.vardesc = '2010 Census based State FIPS Code'
 
-    assert st.vartype == 'C'
     assert st.vardesc == '2010 Census based State FIPS Code'
 
     st.add_value('01','06','Acceptable State Range 1')

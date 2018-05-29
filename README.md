@@ -11,4 +11,21 @@ To-Do List
 
 [x] Complete final write out of files including testing.
 
-[ ] Obtain final layout of input file to include variable type
+[x] Obtain final layout of input file to include variable type
+
+[ ] Obtain final layout of machine readable file
+
+[ ] Neaten up test cases
+
+[ ] Remove unused code
+
+Uses the following modules:
+
+argparse
+os
+re
+textwrap
+docx*
+py.test*
+
+*Not installed by default

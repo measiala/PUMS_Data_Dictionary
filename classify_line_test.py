@@ -2,6 +2,39 @@ import py.test
 
 from classify_line import *
 
+def test_is_title():
+    assert is_title("2017 ACS PUMS Data Dictionary","None") == True
+    assert is_title("2017 ACS PUMS DATA DICTIONARY","None") == True
+    assert is_title("2017 ACS 1-Year PUMS Data Dictionary","None") == True
+    assert is_title("2013-2017 ACS PUMS Data Dictionary","None") == True
+    assert is_title("2013-2017 ACS PUMS DATA DICTIONARY","None") == True
+    assert is_title("2013-2017 ACS 1-Year PUMS Data Dictionary","None") == True
+    
+    assert is_title("2017 ACS PUMS Data Dictionary","Blank") == True
+    assert is_title("2017 ACS PUMS DATA DICTIONARY","Blank") == True
+    assert is_title("2017 ACS 1-Year PUMS Data Dictionary","Blank") == True
+    assert is_title("2013-2017 ACS PUMS Data Dictionary","Blank") == True
+    assert is_title("2013-2017 ACS PUMS DATA DICTIONARY","Blank") == True
+    assert is_title("2013-2017 ACS 1-Year PUMS Data Dictionary","Blank") == True
+
+    assert is_title("2017 ACS PUMS Data Dictionary","Rel Date") == False
+    assert is_title("2017 ACS PUMS DATA DICTIONARY","Header") == False
+    assert is_title("2017 ACS 1-Year PUMS Data Dictionary","Var Name") == False
+    assert is_title("2013-2017 ACS PUMS Data Dictionary","Var Desc") == False
+    assert is_title("2013-2017 ACS PUMS Data Dictionary","Var Value") == False
+    assert is_title("2013-2017 ACS PUMS Data Dictionary","Val Desc") == False
+
+def test_is_reldate():
+    assert is_reldate("October 18, 2018",'Title') == True
+    assert is_reldate("January 20, 2019",'Title') == True
+    assert is_reldate("OCTOBER 18, 2018",'Title') == True
+    assert is_reldate("JANUARY 20, 2019",'Title') == True
+    assert is_reldate("Oct 18, 2018",'Title') == False
+    assert is_reldate("October 2018",'Title') == False
+
+    assert is_reldate("October 18, 2018",'Header') == False
+    assert is_reldate("January 20, 2019",'Var Value') == False
+    
 def test_is_blank_line():
     assert is_blank_line("") == True
     assert is_blank_line("\t") == True
@@ -9,6 +42,10 @@ def test_is_blank_line():
     assert is_blank_line(".") == False
 
 def test_is_record_header():
+    assert is_record_header("HOUSING RECORD",'Rel Date') == True
+    assert is_record_header("PERSON RECORD",'Rel Date') == True
+    assert is_record_header("HOUSING RECORD",'Title') == False 
+    assert is_record_header("PERSON RECORD",'Title') == False
     assert is_record_header("HOUSING RECORD",'Blank') == True
     assert is_record_header("PERSON RECORD",'Blank') == True
     assert is_record_header("HOUSING RECORD-BASIC VARIABLES",'Blank') == True
@@ -33,44 +70,59 @@ def test_is_record_header():
     assert is_record_header("HOUSING RECORD",'Val Desc') == True
 
 def test_is_var_name():
-    assert is_var_name("PWGT 5",'Blank') == True
-    assert is_var_name("PWGT1 5",'Blank') == True
-    assert is_var_name("PWGT1P 5",'Blank') == True
+    assert is_var_name("PWGT Numeric 5",'Blank') == True
+    assert is_var_name("PWGT1 Numeric 5",'Blank') == True
+    assert is_var_name("PWGT1P Numeric 5",'Blank') == True
     assert is_var_name("PWGT1P A",'Blank') == False
-    assert is_var_name("1PWGT 5",'Blank') == False
+    assert is_var_name("1PWGT Numeric 5",'Blank') == False
+
+    assert is_var_name("PWGT numeric 5",'Blank') == True
+    assert is_var_name("PWGT NUMERIC 5",'Blank') == True
+    assert is_var_name("PWGT character 5",'Blank') == True
+    assert is_var_name("PWGT CHARACTER 5",'Blank') == True
+    assert is_var_name("PWGT num3ric 5",'Blank') == False
+    assert is_var_name("PWGT numBeric 5",'Blank') == False
 
     assert is_var_name("PWGT",'Blank') == False
     assert is_var_name("PWGT1",'Blank') == False
     assert is_var_name("PWGT1P",'Blank') == False
     assert is_var_name("1PWGT",'Blank') == False
+    assert is_var_name("PWGT 5",'Blank') == False
+    assert is_var_name("PWGT1 5",'Blank') == False
+    assert is_var_name("PWGT1P 5",'Blank') == False
+    assert is_var_name("1PWGT 5",'Blank') == False
+    assert is_var_name("PWGT 5",'Blank') == False
+    assert is_var_name("PWGT1 5",'Blank') == False
+    assert is_var_name("PWGT1P 5",'Blank') == False
+    assert is_var_name("1PWGT 5",'Blank') == False
 
-    assert is_var_name(" PWGT 5",'Blank') == False
-    assert is_var_name(" PWGT1 5",'Blank') == False
-    assert is_var_name(" PWGT1P 5",'Blank') == False
+    assert is_var_name(" PWGT Numeric 5",'Blank') == False
+    assert is_var_name(" PWGT1 Numeric 5",'Blank') == False
+    assert is_var_name(" PWGT1P Numeric 5",'Blank') == False
     assert is_var_name(" PWGT1P A",'Blank') == False
-    assert is_var_name(" 1PWGT 5",'Blank') == False
+    assert is_var_name(" 1PWGT Numeric 5",'Blank') == False
     
     assert is_var_name(" PWGT",'Blank') == False
     assert is_var_name(" PWGT1",'Blank') == False
     assert is_var_name(" PWGT1P",'Blank') == False
     assert is_var_name(" 1PWGT",'Blank') == False
 
-    assert is_var_name("P_HUSAMP 5",'Blank') == False
-    assert is_var_name("pwgt 5",'Blank') == False
-    assert is_var_name("Pwgt 5",'Blank') == False
+    assert is_var_name("P_HUSAMP Numeric 5",'Blank') == False
+    assert is_var_name("pwgt Numeric 5",'Blank') == False
+    assert is_var_name("Pwgt Numeric 5",'Blank') == False
 
     assert is_var_name("P_HUSAMP",'Blank') == False
     assert is_var_name("pwgt",'Blank') == False
     assert is_var_name("Pwgt",'Blank') == False
 
-    assert is_var_name("PWGT. 5",'Blank') == False
-    assert is_var_name("PWGT 5 C",'Blank') == False
+    assert is_var_name("PWGT. Numeric 5",'Blank') == False
+    assert is_var_name("PWGT Numeric 5 C",'Blank') == False
 
-    assert is_var_name("PWGT 5",'Header') == True
-    assert is_var_name("PWGT 5",'Var Value') == True
-    assert is_var_name("PWGT 5",'Val Desc') == True
-    assert is_var_name("PWGT 5",'Var Name') == False
-    assert is_var_name("PWGT 5",'Var Desc') == False
+    assert is_var_name("PWGT Numeric 5",'Header') == True
+    assert is_var_name("PWGT Numeric 5",'Var Value') == True
+    assert is_var_name("PWGT Numeric 5",'Val Desc') == True
+    assert is_var_name("PWGT Numeric 5",'Var Name') == False
+    assert is_var_name("PWGT Numeric 5",'Var Desc') == False
 
 def test_is_var_desc():
     assert is_var_desc("Person weight",'Blank') == False
@@ -149,31 +201,31 @@ def test_classify_line():
     assert classify_line("HOUSING RECORD",'Var Value') == 'Header'
     assert classify_line("HOUSING RECORD",'Val Desc') == 'Header'
 
-    assert classify_line("PWGTP 5",'Blank') == 'Var Name'
-    assert classify_line("PWGTP 5",'Header') == 'Var Name'
-    assert classify_line("PWGTP 5",'Var Name') == 'Var Desc'
-    assert classify_line("PWGTP 5",'Var Desc') == 'Var Desc'
-    assert classify_line("PWGTP 5",'Var Value') == 'Var Name'
-    assert classify_line("PWGTP 5",'Val Desc') == 'Var Name'
+    assert classify_line("PWGTP Numeric 5",'Blank') == 'Var Name'
+    assert classify_line("PWGTP Numeric 5",'Header') == 'Var Name'
+    assert classify_line("PWGTP Numeric 5",'Var Name') == 'Var Desc'
+    assert classify_line("PWGTP Numeric 5",'Var Desc') == 'Var Desc'
+    assert classify_line("PWGTP Numeric 5",'Var Value') == 'Var Name'
+    assert classify_line("PWGTP Numeric 5",'Val Desc') == 'Var Name'
     
-    assert classify_line("Person Weight",'Blank') == 'None'
-    assert classify_line("Person Weight",'Header') == 'None'
+    assert classify_line("Person Weight",'Blank') == None
+    assert classify_line("Person Weight",'Header') == None
     assert classify_line("Person Weight",'Var Name') == 'Var Desc'
     assert classify_line("Person Weight",'Var Desc') == 'Var Desc'
-    assert classify_line("Person Weight",'Var Value') == 'None'
-    assert classify_line("Person Weight",'Val Desc') == 'None'
+    assert classify_line("Person Weight",'Var Value') == None
+    assert classify_line("Person Weight",'Val Desc') == None
 
-    assert classify_line("foo .bar",'Blank') == 'None'
-    assert classify_line("foo .bar",'Header') == 'None'
-    assert classify_line("foo .bar",'Var Name') == 'None'
+    assert classify_line("foo .bar",'Blank') == None
+    assert classify_line("foo .bar",'Header') == None
+    assert classify_line("foo .bar",'Var Name') == None
     assert classify_line("foo .bar","Var Desc") == 'Var Value'
     assert classify_line("foo .bar",'Var Value') == 'Var Value'
     assert classify_line("foo .bar",'Val Desc') == 'Var Value'
     assert classify_line("  1 .2010 (1.0 * 1.1)",'Var Desc') == 'Var Value'
 
-    assert classify_line(".bar",'Blank') == 'None'
-    assert classify_line(".bar",'Header') == 'None'
-    assert classify_line(".bar",'Var Name') == 'None'
-    assert classify_line(".bar",'Var Desc') == 'None'
+    assert classify_line(".bar",'Blank') == None
+    assert classify_line(".bar",'Header') == None
+    assert classify_line(".bar",'Var Name') == None
+    assert classify_line(".bar",'Var Desc') == None
     assert classify_line(".bar",'Var Value') == 'Val Desc'
     assert classify_line(".bar",'Val Desc') == 'Val Desc'

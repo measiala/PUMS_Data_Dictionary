@@ -26,7 +26,9 @@ def assign_period(args):
 def assign_infile(args,indir):
     """ Input file incomplete """
     if args.ifile and os.path.isfile(args.ifile):
-        return args.ifile
+        indir = os.path.split(args.ifile)[0]
+        def_base = os.path.join(indir,'PageFooter.docx')
+        return [args.ifile,def_base]
     else:
         if os.path.exists(indir):
             def_ifile = os.path.join(
