@@ -31,7 +31,7 @@ def output_header(name,level,ofile,dfile):
     docx_out_header(name,level,dfile)
     return;
 
-def output_var_name( var_name, var_type, var_len, ofile, doc, vfile, tabsep = 'NO' ):
+def output_var_name( var_name, var_type, var_len, var_desc, ofile, doc, vfile, tabsep = 'NO' ):
     if len(var_name) > 10:
         print('WARNING: ' + var_name + ' has length ' + str(len(var_name)))
         print('-------: A variable of length 12 will not have any whitespace separation.')
@@ -39,7 +39,7 @@ def output_var_name( var_name, var_type, var_len, ofile, doc, vfile, tabsep = 'N
         var_type_str = 'Character'
     elif var_type == 'N':
         var_type_str = 'Numeric'
-    vfile.write( 'N: ' + var_type + ',' + var_name + ',' + str(var_len) + '\n' )
+    vfile.write( 'NAME,' + var_name + ',' + var_type + ',' + str(var_len) + ',"' + var_desc + '"\n' )
     print_var_name   ( var_name, var_type_str, var_len, ofile, tabsep )
     docx_out_var_name( var_name, var_type_str, var_len, doc )
     return;
@@ -61,7 +61,8 @@ def output_var_val( var_name, var_type, var_len, var_val, var_val_desc, ofile, d
     else:
         var_low = 'ERR'
         var_hi  = 'ERR'
-    vfile.write( 'V: ' + var_type + ',' + var_name + ',' + str(var_len) + ',' + var_low + ',' + var_hi + '\n') 
+    vfile.write( 'VAL,' + var_name + ',' + var_type + ',' + str(var_len) + ',' + var_low + ',' + var_hi
+                 + ',"' + var_val_desc +'"\n') 
     print_var_val   ( var_val, var_val_desc, var_len, ofile, wrap_text, tabindent, tabsep )
     docx_out_var_val( var_val, var_val_desc, var_len, doc, wrap_text='YES', custom_width=cust_width)
     return;
@@ -96,7 +97,7 @@ def output_var_block(pl,dd,ofile,dfile,cfile,custom='DEFAULT'):
                 vardesc = v.vardesc
                 valdict = v.valdict
               
-                output_var_name(varname, vartype, varlen, ofile, dfile, cfile, tabsep = 'NO')
+                output_var_name(varname, vartype, varlen, vardesc, ofile, dfile, cfile, tabsep = 'NO')
                 output_var_desc(vardesc, ofile, dfile, wrap_text='NO',indent='NO',tabindent='NO')
 
                 if custom != 'DEFAULT':
