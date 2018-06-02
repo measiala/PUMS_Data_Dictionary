@@ -3,6 +3,8 @@
 import argparse
 import os
 
+import logging
+
 from docx import Document
 from docx.shared import Inches, Pt
 
@@ -19,11 +21,19 @@ OUTDIR = './output'
     
 argp = argparse.ArgumentParser(description='Provide input data dictionary parameters')
 
-argp.add_argument('yyyy',metavar='YYYY',type=int,help='Ending 4-digit data year for data dictionary')
-argp.add_argument('period',metavar='PERIOD',type=int,choices=[1,3,5],help='Length of period (1/3/5)')
-argp.add_argument('--ifile','-i',metavar='InFile',type=str,help='Path to input data dictionary')
-argp.add_argument('--outdir','-o',metavar='OutDir',type=str,help='Path to output directory')
-argp.add_argument('--replace','-r',action='store_true',help='Replace existing output files')
+argp.add_argument('yyyy',metavar='YYYY',type=int,
+                  help='Ending 4-digit data year for data dictionary')
+argp.add_argument('period',metavar='PERIOD',type=int,choices=[1,3,5],
+                  help='Length of period (1/3/5)')
+argp.add_argument('--ifile','-i',metavar='InFile',type=str,
+                  help='Path to input data dictionary')
+argp.add_argument('--outdir','-o',metavar='OutDir',type=str,
+                  help='Path to output directory')
+argp.add_argument('--replace','-r',action='store_true',
+                  help='Replace existing output files')
+argp.add_argument('--loglvl','-l',metavar='LogLevel',type=str,
+                  choices=['ERROR','WARNING','INFO'],
+                  help='Log Output Level (ERROR/WARNING/INFO)')
 
 args = argp.parse_args()
 
@@ -35,21 +45,36 @@ period = assign_period(args)
 if period == None:
     exit(2)
 
-[ infile, basefile ] = assign_infile(args,INDIR)
-if infile == None:
+out = assign_infile(args,INDIR)
+if out == None:
     exit(2)
+else:
+    [ infile, basefile ] = out
 
-[ outdoc, outtxt, outcsv ] = assign_outfiles(args,OUTDIR)
-if outdoc == None:
+out = assign_outfiles(args,OUTDIR)
+if out == None:
     exit(2)
+else:
+    [ outdoc, outtxt, outcsv, outlog ] = out
 
-print("-----")
-print("Reading DOCX from: %s" % infile)
-print("-----")
-print("Writing DOCX to: %s" % outdoc)
-print("Writing TXT to: %s" % outtxt)
-print("Writing CSV to: %s" % outcsv)
-print("-----")
+""" Setup logging """    
+print("NOTE: Writing output LOG to: %s" % outlog)
+
+if args.loglvl:
+    num_lvl = getattr(logging, args.loglvl.upper(), None)
+else:
+    num_lvl = getattr(logging, 'INFO', None)
+logging.basicConfig(filename=outlog,filemode = 'w',level=num_lvl)
+
+""" Print to stdout basic information """
+logging.info("-----")
+logging.info("Reading input DOCX from: %s" % infile)
+logging.info("Reading input PageFooter.docx from: %s" % basefile)
+logging.info("-----")
+logging.info("Writing output DOCX to: %s" % outdoc)
+logging.info("Writing output TXT to: %s" % outtxt)
+logging.info("Writing output CSV to: %s" % outcsv)
+logging.info("-----")
 
 """ Setup base output Word document """
 ddword = Document(basefile)
@@ -105,19 +130,18 @@ for par in origpars:
                     srt = ''
                 elif len(tmp) > 1:
                     srt = tmp
-                #print(len(tmp),rt,srt)
             elif ltype == 'Var Name':
                 pvar = tmp
             elif ltype == 'Var Value':
                 pval = tmp
             pltype = ltype
         else:
-            print("ERROR: Unable to process line '%s'. Please fix." % p)
-            print("-----: Last variable was %s." % pvar)
+            logging.error("Unable to process line '%s'. Please fix.",p)
+            logging.error("Last variable was %s.",pvar)
             exit(2)
     else:
-        print("ERROR: Line '%s' is not resolvable. Please fix." % p)
-        print("-----: Last variable was %s." % pvar)
+        logging.error("Line '%s' is not resolvable. Please fix.",p)
+        logging.error("Last variable was %s.",pvar)
         exit(2)
         
 output_var_block(pl,dd,ddtext,ddword,ddcsv,custom='YES')

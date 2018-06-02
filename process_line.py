@@ -1,3 +1,4 @@
+import logging
 from class_defs import *
 from classify_line import classify_line
 
@@ -6,7 +7,7 @@ def add_title(p,pl):
         pl.title = p
         return p
     else:
-        print("ERROR: Title is already defined.")
+        logging.error("Title is already defined.")
     return None
 
 def add_reldate(p,pl):
@@ -19,7 +20,7 @@ def add_reldate(p,pl):
         pl.reldate = reldate
         return reldate
     else:
-        print("ERROR: Release Date is already defined.")     
+        logging.error("Release Date is already defined.")     
     return None
 
 def add_header(p,pl):
@@ -34,7 +35,7 @@ def add_header(p,pl):
                 pl.add_rt(rt,header)
                 return rt
             else:
-                print("NOTE: Duplicate Major Record Type -- Ignoring.")
+                logging.info("Duplicate Major Record Type -- Ignoring.")
                 return rt
         elif len(words) > 2:
             if rt in pl.rtdict.keys():
@@ -47,10 +48,10 @@ def add_header(p,pl):
                     pl.rts[pl.rtdict[rt]].add_srt(srt,header)
                     return srt
                 else:
-                    print("NOTE: Duplicate Minor Record Type -- Ignoring.")
+                    logging.info("Duplicate Minor Record Type -- Ignoring.")
                     return srt
             else:
-                print("ERROR: Record Minor Type with no Major Record Type defined.")
+                logging.error("Record Minor Type with no Major Record Type defined.")
     return None
     
 def add_var_name(p,dd,pl,lrt,lsrt):
@@ -69,11 +70,11 @@ def add_var_name(p,dd,pl,lrt,lsrt):
         if varname not in dd.vardict.keys():
             dd.add_var(varname,vartype,varlen)
         else:
-            print("NOTE: Variable %s already defined in Data Dictionary." % varname)
+            logging.info("Variable %s already defined in Data Dictionary." % varname)
         if varname not in srt.vars:
             srt.add_var(varname)
         else:
-            print("ERROR: Variable %s already exists in Layout for %s." % (varname,srt.desc))
+            logging.error("Variable %s already exists in Layout for %s." % (varname,srt.desc))
         return varname
     return None
 
@@ -84,16 +85,11 @@ def add_var_desc(p,dd,varname):
             v.vardesc = (v.vardesc + ' ' + p.strip()).strip()
             return varname
         else:
-            return False
-        """
-        else:
-            print("ERROR: Possible duplication of variable description.")
-            print("EXISTING: '%s'" % v.vardesc.strip())
-            print("NEW: '%s'" % p.strip())
-            #exit(2)
-        """
+            logging.warning("Possible duplication in variable description for %s ignored."
+                  % varname)
+            return varname
     else:
-        print("ERROR: Variable %s does not exist in the data dictionary." % varname)
+        logging.error("Variable %s does not exist in the data dictionary." % varname)
     return None
 
 def add_var_value(p,dd,varname):
@@ -123,11 +119,20 @@ def add_var_value(p,dd,varname):
 
     """ FINISH """
     if varname in dd.vardict.keys():
-        dd.vars[dd.vardict[varname]].add_value(value_low,value_high,value_desc)
+        d = dd.vars[dd.vardict[varname]]
+        if len(value_low) > d.varlen or (value_high != None and len(value_high) > d.varlen):
+            logging.error("Value %s or %s may be smaller than prescribed length of %d."
+                  % (value_low,value_high,d.varlen))
+            return None
+        elif len(value_low) < d.varlen or (value_high != None and len(value_high) < d.varlen):
+            logging.info("Value %s or %s may be smaller than prescribed length of %d."
+                  % (value_low,value_high,dd.vars[dd.vardict[varname]].varlen))
+            
+        d.add_value(value_low,value_high,value_desc)
         return words[0]
     else:
-        print("ERROR: Issue with assigning variable value.")
-        return None
+        logging.error("Issue with assigning variable value.")
+    return None
     
 def add_val_desc(p,dd,varname,valname):
     """ The parser causes a single split caused by optional white space followed by a period """
@@ -148,10 +153,10 @@ def add_val_desc(p,dd,varname,valname):
             for i in range(len(words)):
                 value_desc = words[i].strip()
                 v.valdict[valname] = (v.valdict[valname] + ' ' + value_desc).strip()
-            return True
+            return valname
     else:
-        print("ERROR: Issue with assigning value description.")
-    return False
+        logging.error("Issue with assigning value description.")
+    return None
 
 def process_line(p,ltype,dd,pl,rt,srt,varname,valname):
     if ltype == 'Blank':

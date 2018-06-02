@@ -13,9 +13,11 @@ To-Do List
 
 [x] Obtain final layout of input file to include variable type
 
-[ ] Obtain final layout of machine readable file
+[x] Add tailored log output
 
-[ ] Neaten up test cases
+[ ] Obtain final layout of machine readable file (improved)
+
+[x] Neaten up test cases
 
 [ ] Remove unused code
 
@@ -24,6 +26,7 @@ Uses the following modules:
 argparse
 os
 re
+logging
 textwrap
 docx*
 py.test*

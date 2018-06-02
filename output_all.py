@@ -1,3 +1,5 @@
+import logging
+
 from print_txt import \
     print_title, \
     print_reldate, \
@@ -32,9 +34,12 @@ def output_header(name,level,ofile,dfile):
     return;
 
 def output_var_name( var_name, var_type, var_len, var_desc, ofile, doc, vfile, tabsep = 'NO' ):
+    if len(var_name) > 11:
+        logging.error('%s has length %d' % (var_name,len(var_name)))
+        logging.error('A variable name of length 12+ will not have any whitespace separation.')
     if len(var_name) > 10:
-        print('WARNING: ' + var_name + ' has length ' + str(len(var_name)))
-        print('-------: A variable of length 12 will not have any whitespace separation.')
+        logging.info('%s has length %d' % (var_name,len(var_name)))
+        logging.info('A variable name of length 12+ will not have any whitespace separation.')
     if var_type == 'C':
         var_type_str = 'Character'
     elif var_type == 'N':
