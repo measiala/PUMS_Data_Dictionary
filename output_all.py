@@ -44,7 +44,8 @@ def output_var_name( var_name, var_type, var_len, var_desc, ofile, doc, vfile, t
         var_type_str = 'Character'
     elif var_type == 'N':
         var_type_str = 'Numeric'
-    vfile.write( 'NAME,' + var_name + ',' + var_type + ',' + str(var_len) + ',"' + var_desc + '"\n' )
+    vfile.write( 'NAME,' + var_name + ',' + var_type + ',' + str(var_len) + ',"' + var_desc.replace('"',"'")
+                 + '"\n' )
     print_var_name   ( var_name, var_type_str, var_len, ofile, tabsep )
     docx_out_var_name( var_name, var_type_str, var_len, doc )
     return;
@@ -66,8 +67,16 @@ def output_var_val( var_name, var_type, var_len, var_val, var_val_desc, ofile, d
     else:
         var_low = 'ERR'
         var_hi  = 'ERR'
+    csv_part1 = 'VAL,' + var_name + ',' + var_type + ',' + str(var_len) + ','
+    csv_part2 = ',"' + var_val_desc.replace('"',"'") + '"\n'
+    if var_type == 'C':
+        vfile.write( csv_part1 + '"' + var_low + '","' + var_hi + '"' + csv_part2 )
+    elif var_type == 'N':
+        vfile.write( csv_part1 + var_low + ',' + var_hi + csv_part2 )
+    """
     vfile.write( 'VAL,' + var_name + ',' + var_type + ',' + str(var_len) + ',' + var_low + ',' + var_hi
-                 + ',"' + var_val_desc +'"\n') 
+                 + ',"' + var_val_desc.replace('"',"'") +'"\n') 
+    """
     print_var_val   ( var_val, var_val_desc, var_len, ofile, wrap_text, tabindent, tabsep )
     docx_out_var_val( var_val, var_val_desc, var_len, doc, wrap_text='YES', custom_width=cust_width)
     return;
