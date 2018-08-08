@@ -16,6 +16,7 @@ dictionary.
 """
 
 import logging
+from collections import OrderedDict
 
 class VarInfo:
     """
@@ -27,7 +28,7 @@ class VarInfo:
         self.vartype = vartype
         self.varlen  = varlen
         self.vardesc = ''
-        self.valdict = {}
+        self.valdict = OrderedDict()
 
     def add_value(self,val_low: str,val_high: str,desc):
         """ Returns True if value/range added, False otherwise """

@@ -150,3 +150,4 @@ def test_VarInfo():
     
     assert st.valdict['01..06'] == 'Acceptable State Range 1'
     assert st.valdict['07'] == 'Out of Scope - American Samoa'
+    assert list(st.valdict.keys()) == ['01..06','07','02']
