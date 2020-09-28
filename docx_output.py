@@ -1,8 +1,9 @@
 #!/usr/bin/python3
 
-from docx           import Document
-from docx.shared    import Inches, Pt
-from docx.enum.text import WD_TAB_ALIGNMENT, WD_TAB_LEADER, WD_ALIGN_PARAGRAPH
+# from docx import Document
+from docx.shared import Inches, Pt
+# from docx.enum.text import WD_TAB_ALIGNMENT, WD_TAB_LEADER, 
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.style import WD_STYLE_TYPE
 
 import textwrap
@@ -13,24 +14,25 @@ from hyperlink import add_hyperlink
 ### Setup output document ###
 #############################
 
-def initialize_doc( doc ):
+def initialize_doc(doc):
     ### Set 1-inch page margins
     page_width = 6.5 * 72.27 / 72
     margin = (8.5 - page_width) / 2
-    doc.sections.left_margin  = Inches(margin)
+    doc.sections.left_margin = Inches(margin)
     doc.sections.right_margin = Inches(margin)
 
     ### Define styles
     normal = doc.styles['Normal']
-    cnorm  = doc.styles.add_style('Normal Center', WD_STYLE_TYPE.PARAGRAPH)
-    head1  = doc.styles['Heading 1']
-    head2  = doc.styles['Heading 2']
-    head3  = doc.styles['Heading 3']
+    cnorm = doc.styles.add_style('Normal Center', WD_STYLE_TYPE.PARAGRAPH)
+    head1 = doc.styles['Heading 1']
+    head2 = doc.styles['Heading 2']
+    head3 = doc.styles['Heading 3']
     vardes = doc.styles.add_style('Var Desc',  WD_STYLE_TYPE.PARAGRAPH)
     varval = doc.styles.add_style('Var Value', WD_STYLE_TYPE.PARAGRAPH)
-    note   = doc.styles.add_style('Note',      WD_STYLE_TYPE.PARAGRAPH)
+    note = doc.styles.add_style('Note',      WD_STYLE_TYPE.PARAGRAPH)
 
-    def style_props( style, priority, align, ptindent, ptbefore, ptafter, bold, color = 'None' ):
+    def style_props(style, priority, align, ptindent, ptbefore, ptafter, bold,
+            color='None'):
         if style != normal:
             style.base_style = normal
         style.hidden = False
@@ -45,60 +47,60 @@ def initialize_doc( doc ):
             style.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.LEFT
             style.paragraph_format.left_indent = Pt(ptindent)
         style.paragraph_format.space_before = Pt(ptbefore)
-        style.paragraph_format.space_after  = Pt(ptafter)
+        style.paragraph_format.space_after = Pt(ptafter)
         style.paragraph_format.widow_control = True
         if 1 == 0: #color != 'None':
             style.font.color = "5B9BC5"
-        return;
+        return None
     
     # Normal Style
-    style_props( normal, 0, 'LEFT', 0, 0, 0, False)
+    style_props(normal, 0, 'LEFT', 0, 0, 0, False)
 
     # Normal Center Style
-    style_props( cnorm, 7, 'CENTER', 0, 0, 0, False )
+    style_props(cnorm, 7, 'CENTER', 0, 0, 0, False)
     
     # Heading 1 Style for title
-    style_props( head1, 1, 'CENTER', 0, 24, 0, True, '5B9BC5' )
+    style_props(head1, 1, 'CENTER', 0, 24, 0, True, '5B9BC5')
 
     # Heading 2 Style for Record Type Seperators
-    style_props( head2, 2, 'CENTER', 0, 12, 12, True, '5B9BC5' )
+    style_props(head2, 2, 'CENTER', 0, 12, 12, True, '5B9BC5')
 
     # Heading 3 Style for Variable header
-    style_props( head3, 3, 'LEFT', 0, 12, 0, True, '5B9BC5' )
+    style_props(head3, 3, 'LEFT', 0, 12, 0, True, '5B9BC5')
     head3.paragraph_format.tab_stops.add_tab_stop(Inches(1.0))
     head3.paragraph_format.tab_stops.add_tab_stop(Inches(2.0))
 
     # Variable Description Style
-    style_props( vardes, 4, 'LEFT', 36, 0, 0, False )
+    style_props(vardes, 4, 'LEFT', 36, 0, 0, False)
 
     # Legal Value Style
-    style_props( varval, 5, 'LEFT', 72, 0, 0, False )
+    style_props(varval, 5, 'LEFT', 72, 0, 0, False)
 
     # Note
-    style_props( note, 6, 'LEFT', 0, 12, 0, False )
-    return;
+    style_props(note, 6, 'LEFT', 0, 12, 0, False)
+    return None
 
-def docx_out_title( title, doc ):
-    doc.add_heading( title, level=1 )
-    return;
+def docx_out_title(title, doc):
+    doc.add_heading(title, level=1)
+    return None
 
-def docx_out_reldate( reldate, doc ):
-    doc.add_paragraph( reldate, style='Normal Center' )
-    return;
+def docx_out_reldate(reldate, doc):
+    doc.add_paragraph(reldate, style='Normal Center')
+    return None
 
 def docx_out_header(header, hlevel, doc):
     doc.add_heading(header, hlevel)
-    return;
+    return None
 
-def docx_out_var_name( var_name, var_type, var_len, doc ):
-    doc.add_heading( var_name + '\t' + var_type + '\t' + str(var_len), level=3 )
-    return;
+def docx_out_var_name(var_name, var_type, var_len, doc):
+    doc.add_heading(var_name + '\t' + var_type + '\t' + str(var_len), level=3)
+    return None
 
-def docx_out_var_desc( var_desc, doc ):
-    doc.add_paragraph( var_desc, style='Var Desc' )
-    return;
+def docx_out_var_desc(var_desc, doc):
+    doc.add_paragraph(var_desc, style='Var Desc')
+    return None
 
-def docx_out_var_val(var_val, var_val_desc, var_len, doc, wrap_text = 'YES', custom_width = 'NO' ):
+def docx_out_var_val(var_val, var_val_desc, var_len, doc, wrap_text='YES', custom_width='NO'):
     if custom_width == 'NO':
         value_width = 2*int(var_len) + 3
     else:
@@ -110,23 +112,23 @@ def docx_out_var_val(var_val, var_val_desc, var_len, doc, wrap_text = 'YES', cus
         max_wd = 78 - tabchar - 2
         lines = textwrap.wrap(textwrap.dedent(var_val_desc).strip(), width=max_wd)
         if len(lines) == 1:
-            newp = doc.add_paragraph( var_val + '\t.' + lines[0].strip(), style='Var Value' )
-            newp.paragraph_format.tab_stops.add_tab_stop( Pt(tabloc) )
+            newp = doc.add_paragraph(var_val + '\t.' + lines[0].strip(), style='Var Value')
+            newp.paragraph_format.tab_stops.add_tab_stop(Pt(tabloc))
         elif len(lines) > 1:
             oline = var_val + '\t.' + lines[0].strip() + '\n'
             for i in range(1,len(lines)-1):
                 oline = oline + '\t.' + lines[i].strip() + '\n'
             oline = oline + '\t.' + lines[-1].strip()
-            newp = doc.add_paragraph( oline, style = 'Var Value' )
-            newp.paragraph_format.tab_stops.add_tab_stop( Pt(tabloc) )
+            newp = doc.add_paragraph(oline, style = 'Var Value')
+            newp.paragraph_format.tab_stops.add_tab_stop(Pt(tabloc))
     else:
-        newp = doc.add_paragraph( var_val + '\t.' + var_val_desc.strip(), style='Var Value' )
+        newp = doc.add_paragraph(var_val + '\t.' + var_val_desc.strip(), style='Var Value')
 
     # Each char has length 6pt so below allows two values of var_len plus 1 inch plus the two dots
-    newp.paragraph_format.tab_stops.add_tab_stop( Pt(6*value_width + 72))
-    return;
+    newp.paragraph_format.tab_stops.add_tab_stop(Pt(6*value_width + 72))
+    return None
 
-def docx_out_note( note, doc, urls = 'NO' ):
+def docx_out_note(note, doc, urls = 'NO'):
     if urls == 'YES':
         outnote = ''
         outp = doc.add_paragraph('', style='Note')
@@ -134,7 +136,7 @@ def docx_out_note( note, doc, urls = 'NO' ):
         note_pos = 0
 
         while note_pos < len_note:
-            if note.find("http",note_pos) == -1:
+            if note.find("http", note_pos) == -1:
                 outnote = note[note_pos:]
                 outp.add_run(outnote)
                 note_pos = len_note
@@ -154,5 +156,5 @@ def docx_out_note( note, doc, urls = 'NO' ):
                 note_pos = note_pos + len(link)
                 hyperlink = add_hyperlink(outp, link, link, '0000FF', True)
     else:
-        doc.add_paragraph( note, style='Note' )
-    return;
+        doc.add_paragraph(note, style='Note')
+    return None
